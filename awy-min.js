@@ -254,7 +254,11 @@ var awy = function () {
     this.runMiddleware = function (rr) {
         var finalResponse = async function(rr, next) {
             await next(rr);
-            rr.res.send(rr.res.Body);
+            if (rr.res.Body === null || rr.res.Body === false) {
+                rr.res.end();
+            } else {
+                rr.res.send(rr.res.Body);
+            }
         };
         the.add(finalResponse);
         var last = the.mid_chain.length - 1;
