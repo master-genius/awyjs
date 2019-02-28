@@ -44,7 +44,7 @@ ar.run('localhost', 8080);
 curl 'http://localhost:8080/'
 
 输出结果：
-> success
+  success
 
 ```
 
@@ -73,7 +73,7 @@ ar.run('localhost', 8080);
 curl 'http://localhost:8080/test?name=helo'
 
 输出结果：
-> helo
+  helo
 
 ```
 
@@ -234,23 +234,25 @@ ar.get('/notmid', async rr => {
 
 ```
 
+```
 
 curl 'http://localhost:8080/'
 
->I am a middleware
->Hello world
->[OK]
+ I am a middleware
+ Hello world
+ [OK]
 
 
 curl 'http://localhost:8080/test'
 
->I am a middleware
->This is test page
->[OK]
+ I am a middleware
+ This is test page
+ [OK]
 
 
 curl 'http://localhost:8080/notmid'
 
->No middleware running
+ No middleware running
 
+```
 
