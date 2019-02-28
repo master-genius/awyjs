@@ -21,12 +21,13 @@ const awy = require('awy');
 var ar = new awy();
 
 /*
-    一定要注意的是：回调函数要写成async rr的形式。
-    rr是打包了request和response的对象：
-        {
-            req,
-            res
-        }
+一定要注意的是：
+    回调函数要写成async rr的形式。
+rr是打包了request和response的对象：
+    {
+        req,
+        res
+    }
     
 */
 
@@ -98,7 +99,7 @@ ar.run('localhost', 8080);
 curl 'http://localhost:8080/pt' -d 'username=albert'
 
 返回结果：
-> albert
+  albert
 
 ```
 
@@ -200,7 +201,18 @@ awy支持中间件模式，添加方式很简单。
 const awy = require('awy');
 
 var ar = new awy();
+/*
+   next表示下一层中间件，
+   并且只需要await next(rr);
+   就可以等待执行下一层中间件。
+   之后还可以继续执行后面的操作，
 
+   如果没有await next(rr);
+   则请求到此结束。
+
+   中间件顺序：按照添加的顺序逆序执行。
+   所以先执行的中间件放在后面。
+*/
 ar.add(async (rr, next) => {
     rr.res.Body += 'I am a middleware\n';
     await next(rr);
@@ -222,22 +234,23 @@ ar.get('/notmid', async rr => {
 
 ```
 
-```
 
 curl 'http://localhost:8080/'
+
 >I am a middleware
 >Hello world
 >[OK]
 
 
 curl 'http://localhost:8080/test'
+
 >I am a middleware
 >This is test page
 >[OK]
 
 
 curl 'http://localhost:8080/notmid'
+
 >No middleware running
 
-```
 
