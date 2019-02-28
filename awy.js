@@ -87,7 +87,14 @@ var awy = function () {
     };
 
     this.any = function(api_path, callback) {
-        this.addPath(api_path, 'ANY', callback);
+        this.map(['GET','POST','PUT','DELETE'], api_path, callback);
+        //this.addPath(api_path, 'ANY', callback);
+    };
+
+    this.map = function(marr, api_path, callback) {
+        for(var i=0; i<marr.length; i++) {
+            this.addPath(api_path, marr[i], callback);
+        }
     };
 
     this.addPath = function(api_path, method, callback) {
@@ -101,11 +108,19 @@ var awy = function () {
                 throw new Error('path route illegal : too many @');
             }
         }
+        if (this.ApiTable[api_path] === undefined) {
+            this.ApiTable[api_path] = {};
+        }
 
-        this.ApiTable[api_path] = {
-            method      : method,
-            callback    : callback
-        };
+        switch (method) {
+            case 'GET':
+            case 'POST':
+            case 'PUT':
+            case 'DELETE':
+                this.ApiTable[api_path][method] = callback;
+                return ;
+            default:;
+        }
     };
     
     this.findPath = function(path) {
@@ -185,9 +200,11 @@ var awy = function () {
 
         if (route_key !== null) {
             var R = the.ApiTable[route_key];
-            req.RequestCall = the.ApiTable[route_key].callback;
+            req.RequestCall = R[req.method];
 
-            if (R.method !== 'ANY' && req.method != R.method) {
+            if (R[req.method] === undefined
+               || typeof R[req.method] !== 'function'
+            ) {
                 res.end(`Error: method not be allowed : ${req.method}`);
                 return ;
             }
