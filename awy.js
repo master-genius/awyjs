@@ -62,7 +62,10 @@ var awy = function () {
             key     : '',
             cert    : ''
         },
+    };
 
+    this.flag = {
+        last_middleware : false
     };
 
     this.ApiTable = {};
@@ -254,15 +257,6 @@ var awy = function () {
     };
     
     this.runMiddleware = function (rr) {
-        var finalResponse = async function(rr, next) {
-            await next(rr);
-            if (rr.res.Body === null || rr.res.Body === false) {
-                rr.res.end();
-            } else {
-                rr.res.send(rr.res.Body);
-            }
-        };
-        the.add(finalResponse);
         var last = the.mid_chain.length - 1;
         return the.mid_chain[last](rr, the.mid_chain[last-1]);
     };
@@ -377,12 +371,6 @@ var awy = function () {
         }
 
     };
-    /*
-        尽管可以使用content-type解析具体的文件类型，
-        但是使用二进制写入，仅仅实现解析扩展名并重命名即可。
-        解析content-type可以用于文件类型限制等更高级的功能，
-        这个功能并不作为框架的一部分，而是用一个中间件实现。
-    */
 
     this.reqHandler = function (req, res) {
 
@@ -544,9 +532,19 @@ var awy = function () {
 
     };
 
+    this.addFinalResponse = function() {
+        var fr = async function(rr, next) {
+            await next(rr);
+            rr.res.send(rr.res.Body);
+        };
+        the.add(fr);
+    };
 
     this.run = function(host = 'localhost', port = 2020) {
-        
+        if (this.flag.last_middleware === false) {
+            this.addFinalResponse();
+        }
+
         var opts = {};
         var serv = null;
         if (the.config.https_on) {
@@ -603,6 +601,12 @@ var awy = function () {
             serv.unref();
             return true;
         }
+        /*
+            添加最后的中间件处理响应，并设置标记为true
+            此时，再次调用run不会继续添加此中间件。
+        */
+        the.addFinalResponse();
+        the.flag.last_middleware = true;
         
         if (cluster.isMaster) {
             if (num <= 0) {
