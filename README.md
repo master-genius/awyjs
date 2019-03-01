@@ -292,7 +292,7 @@ as.post('/test', async rr => {
     ...        
 });
 
-as.map(['GET','POST','PUT', 'DELETE'], '/resource', async rr => {
+as.map(['GET', 'PUT', 'DELETE'], '/resource/:id', async rr => {
     ...
 });
 
