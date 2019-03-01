@@ -256,3 +256,46 @@ curl 'http://localhost:8080/notmid'
 
 ```
 
+#### 路由
+
+awy的路由非常简单，除了基本的字符串，支持两个参数类型：
+
+```
+
+/content/:id
+    :表示变量是必需的，实际的路由格式为：/content/123
+
+/rs/:id/:group
+    此时如果访问路径为/rs/1234/linux，
+    则实际会执行/rs/:id/:group，
+    参数解析到rr.req.RequestARGS：
+        {
+            id    : "1234",
+            group : "linux"
+        }
+
+```
+
+#### RESTFul
+
+```
+
+const awy = require('awy');
+
+var as = new awy();
+
+as.get('/test', async rr => {
+   ....     
+});
+
+as.post('/test', async rr => {
+    ...        
+});
+
+as.map(['GET','POST','PUT', 'DELETE'], '/resource', async rr => {
+    ...
+});
+
+
+```
+

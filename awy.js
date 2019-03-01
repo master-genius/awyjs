@@ -98,16 +98,7 @@ var awy = function () {
     };
 
     this.addPath = function(api_path, method, callback) {
-        var i = api_path.search('@');
-        if (i >= 0) {
-            var pt = api_path.split('/').filter(p => p.length > 0);
-            if (pt[pt.length-1].search('@') < 0) {
-                throw new Error('path route illegal : @VAR must at the last');
-            }
-            if (api_path.substring(0,i).search('@') >= 0) {
-                throw new Error('path route illegal : too many @');
-            }
-        }
+
         if (this.ApiTable[api_path] === undefined) {
             this.ApiTable[api_path] = {};
         }
@@ -132,19 +123,12 @@ var awy = function () {
         var next = 0;
         var args = {};
         for (var k in the.ApiTable) {
-            if (k.search(':') < 0 && k.search('@') < 0) {
+            if (k.search(':') < 0) {
                 continue;
             }
             ap = k.split('/').filter(p => p.length > 0);
             if (ap.length !== path_split.length) {
-                if (k.search('@') < 0) {
-                    continue;
-                }
-
-                if (ap.length-1 !== path_split.length) {
-                    continue;
-                }
-
+                continue;
             }
             next = false;
             args = {};
@@ -152,7 +136,7 @@ var awy = function () {
                 if (ind >= path_split.length) {
                     break;
                 }
-                if (ap[ind].search(':') >= 0 || ap[ind].search('@') >= 0) {
+                if (ap[ind].search(':') >= 0) {
                     args[ap[ind].substring(1)] = path_split[ind];
                 } else if (ap[ind] !== path_split[ind]) {
                     next = true;
@@ -175,48 +159,64 @@ var awy = function () {
     this.execRequest = function (path, req, res) {
         var pk = null;
         var route_key = null;
-        req.REALPATH = path;
-        /*  */
+        req.ORGPATH = path;
+        /*
+            路由处理会自动处理末尾的/，
+            /content/123和/content/123/是同一个请求
+        */
         if (the.ApiTable[path] === undefined) {
-            if (the.config.ignore_last_slash
-                && path[path.length-1] !== '/'
-                && the.ApiTable[`${path}/`] !== undefined
-            ) {
-                route_key = `${path}/`;
-            } else {
-                pk = the.findPath(path);
-                if (pk !== null) {
-                    req.RequestARGS = pk.args;
-                    route_key = pk.key;
-                } else {
-                    res.statusCode = 404;
-                    res.end("request not found");
-                    return ;
+            if (path[path.length-1] === '/') {
+                var lpath = path.substring(0, path.length-1);
+                if (the.ApiTable[lpath] !== undefined) {
+                    route_key = lpath;
                 }
+            } else if(the.ApiTable[`${path}/`] !== undefined) {
+                route_key = `${path}/`;
             }
+
         } else {
             route_key = path;
         }
-
-        if (route_key !== null) {
-            var R = the.ApiTable[route_key];
-            req.RequestCall = R[req.method];
-
-            if (R[req.method] === undefined
-               || typeof R[req.method] !== 'function'
-            ) {
-                res.end(`Error: method not be allowed : ${req.method}`);
-                return ;
+        
+        /*
+            如果发现了路径，但是路径和带参数的路径一致。
+            这需要作为参数处理，此时重置为null。
+        */
+        if (route_key && route_key.indexOf(':') >= 0) {
+            route_key = null;
+        }
+        
+        if (route_key === null) {
+            pk = the.findPath(path);
+            if (pk !== null) {
+                req.RequestARGS = pk.args;
+                route_key = pk.key;
             }
-    
-            if (
-                (req.method === 'POST' || req.method === 'PUT' )
-                && req.IsUpload === true
-            ) {
-                //console.log(req.BodyRawData);
-                the.parseUploadData(req, res);
-            }
+        }
 
+        if (route_key === null) {
+            res.statusCode = 404;
+            res.end("request not found");
+            return ;
+        }
+        
+        req.PATHINFO = route_key;
+
+        var R = the.ApiTable[route_key];
+        req.RequestCall = R[req.method];
+
+        if (R[req.method] === undefined
+           || typeof R[req.method] !== 'function'
+        ) {
+            res.end(`Error: method not be allowed : ${req.method}`);
+            return ;
+        }
+
+        if (
+            (req.method === 'POST' || req.method === 'PUT' )
+            && req.IsUpload === true
+        ) {
+            the.parseUploadData(req, res);
         }
         
         return the.runMiddleware({
@@ -256,11 +256,11 @@ var awy = function () {
 
             if (preg) {
                 if (
-                    (typeof preg === 'string' && preg !== rr.req.REALPATH)
+                    (typeof preg === 'string' && preg !== rr.req.PATHINFO)
                     ||
-                    (preg instanceof RegExp && !preg.test(rr.req.REALPATH))
+                    (preg instanceof RegExp && !preg.test(rr.req.PATHINFO))
                     ||
-                    (preg instanceof Array && preg.indexOf(rr.req.REALPATH) < 0)
+                    (preg instanceof Array && preg.indexOf(rr.req.PATHINFO) < 0)
                 ) {
                     await jump(rr, the.mid_chain[last]);
                     return rr;
