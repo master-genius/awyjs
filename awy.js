@@ -16,15 +16,6 @@ var awy = function () {
         //此配置表示POST/PUT提交表单的最大字节数，也是上传文件的最大限制，
         post_max_size   : 8000000,
 
-        //静态文件根目录
-        static_path     : '',
-
-        //开启静态文件支持
-        static_on       : false,
-
-        //忽略路径最后的/
-        ignore_last_slash : true,
-
         //开启守护进程，守护进程用于上线部署，要使用ants接口，run接口不支持
         daemon          : false,
 
@@ -49,10 +40,8 @@ var awy = function () {
         */
         upload_mode     : 'mem',
 
-        upload_tmp_path : '/tmp',
-
-        //默认上传路径，自动上传函数会使用
-        upload_path     : './upload',
+        //自动解析上传的数据
+        parse_upload    : true,
 
         //开启HTTPS
         https_on        : false,
@@ -215,6 +204,7 @@ var awy = function () {
         if (
             (req.method === 'POST' || req.method === 'PUT' )
             && req.IsUpload === true
+            && the.config.parse_upload === true
         ) {
             the.parseUploadData(req, res);
         }

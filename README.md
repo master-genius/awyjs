@@ -299,3 +299,50 @@ as.map(['GET','POST','PUT', 'DELETE'], '/resource', async rr => {
 
 ```
 
+#### 配置选项
+
+框架使用一些选项控制某些功能，选项信息如下。
+
+```
+
+{
+    //此配置表示POST/PUT提交表单的最大字节数，也是上传文件的最大限制，
+    post_max_size   : 8000000,
+
+    //开启守护进程，守护进程用于上线部署，要使用ants接口，run接口不支持
+    daemon          : false,
+
+    log_file        : './access.log',
+
+    error_log_file  : './error.log',
+
+    /*
+        日志类型：
+            stdio   标准输入输出，可用于调试
+            ignore  没有
+            file    文件，此时会使用log_file以及error_log_file 配置的文件路径
+
+        这个选项以及两个日志文件配置只有在开启daemon的情况下才会生效
+    */
+    log_type        : 'stdio',
+
+    /*
+        暂时只是实现了mem模式，文件会被放在内存里。
+    */
+    upload_mode     : 'mem',
+
+    //自动解析上传的数据
+    parse_upload    : true,
+
+    //开启HTTPS
+    https_on        : false,
+
+    //HTTPS密钥和证书的路径
+    https_options   : {
+        key     : '',
+        cert    : ''
+    },
+};
+
+```
+
