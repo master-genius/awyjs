@@ -79,7 +79,7 @@ curl 'http://localhost:8080/test?name=helo'
 
 #### 获取POST提交的数据
 
-``` JavaScript
+```
 
 const awy = require('awy');
 
