@@ -107,7 +107,7 @@ curl 'http://localhost:8080/pt' -d 'username=albert'
 
 上传的文件会被解析到rr.req.UploadFiles，结构如下：
 
-``` JSON
+```
 
 {
     "image" : [
@@ -148,11 +148,19 @@ curl 'http://localhost:8080/pt' -d 'username=albert'
 
 ##### 上传文件的处理
 
-``` JavaScript
+```
 
 const awy = require('awy');
 
 var ar = new awy();
+
+/*
+开启解析文件数据选项，如果想使用其他处理方式，
+可以设置为false，交给其他中间件处理。
+可以通过req.GetRawBody()或者req.BodyRawData
+获取原始的上传数据。
+*/
+ar.config.parse_upload = true;
 
 ar.post('/upload', async rr => {
     //GetFile接受两个参数，第二个参数是索引值，默认为0。
@@ -196,7 +204,7 @@ curl 'http://localhost:8080/upload' -F 'image=@tmp/a.png'
 
 awy支持中间件模式，添加方式很简单。
 
-``` JavaScript
+```
 
 const awy = require('awy');
 
@@ -258,17 +266,17 @@ curl 'http://localhost:8080/notmid'
 
 #### 路由
 
-awy的路由非常简单，除了基本的字符串，支持两个参数类型：
+awy的路由非常简单，除了基本的字符串，仅仅使用:支持参数类型。
 
 ```
 
 /content/:id
-    :表示变量是必需的，实际的路由格式为：/content/123
+    访问方式：/content/123
 
 /rs/:id/:group
     此时如果访问路径为/rs/1234/linux，
     则实际会执行/rs/:id/:group，
-    参数解析到rr.req.RequestARGS：
+    参数解析到req.RequestARGS：
         {
             id    : "1234",
             group : "linux"
@@ -315,6 +323,12 @@ as.map(['GET', 'PUT', 'DELETE'], '/resource/:id', async rr => {
     log_file        : './access.log',
 
     error_log_file  : './error.log',
+
+    /*
+        调用ants接口，如果设置路径不为空字符串，
+        则会把pid写入到此文件，可用于服务管理。
+    */
+    pid_file        : '',
 
     /*
         日志类型：

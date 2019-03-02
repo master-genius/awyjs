@@ -19,6 +19,12 @@ var awy = function () {
         //开启守护进程，守护进程用于上线部署，要使用ants接口，run接口不支持
         daemon          : false,
 
+        /*
+            开启守护进程模式后，如果设置路径不为空字符串，
+            则会把pid写入到此文件，可用于服务管理。
+        */
+        pid_file        : '',
+
         log_file        : './access.log',
 
         error_log_file  : './error.log',
@@ -40,8 +46,8 @@ var awy = function () {
         */
         upload_mode     : 'mem',
 
-        //自动解析上传的数据
-        parse_upload    : true,
+        //自动解析上传的文件数据
+        parse_upload    : false,
 
         //开启HTTPS
         https_on        : false,
@@ -77,7 +83,6 @@ var awy = function () {
 
     this.any = function(api_path, callback) {
         this.map(['GET','POST','PUT','DELETE'], api_path, callback);
-        //this.addPath(api_path, 'ANY', callback);
     };
 
     this.map = function(marr, api_path, callback) {
@@ -515,22 +520,18 @@ var awy = function () {
                     } else {
                         req.BodyParam = (new Buffer(req.BodyRawData)).toString('utf8');
                     }
-                } else {
-                    //req.IsUpload = true;
-                    //req.BodyRawData;
                 }
 
                 return the.execRequest(get_params.pathname, req, res);
             });
-            /*
-                这段代码考虑到需要处理error事件，但并没有进行严格的测试。
-            */
+            
             req.on('error', (err) => {
                 req.BodyRawData = '';
                 req.resume();
                 //console.log(err);
                 return ;
             });
+
         } else {
             res.statusCode = 405;
             res.setHeader('Allow', ['GET','POST', 'PUT', 'DELETE']);
@@ -619,6 +620,17 @@ var awy = function () {
             if (num <= 0) {
                 num = os.cpus().length;
             }
+
+            if (typeof the.config.pid_file === 'string'
+                && the.config.pid_file.length > 0
+            ) {
+                fs.writeFile(the.config.pid_file, process.pid, (err) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+            }
+
             for(var i=0; i<num; i++) {
                 cluster.fork();
             }
