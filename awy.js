@@ -518,7 +518,7 @@ var awy = function () {
                     if (req.headers['content-type'].indexOf('application/x-www-form-urlencoded') >= 0) {
                         req.BodyParam = qs.parse(req.BodyRawData);
                     } else {
-                        req.BodyParam = (new Buffer(req.BodyRawData)).toString('utf8');
+                        req.BodyParam = (new Buffer(req.BodyRawData, 'binary')).toString('utf8');
                     }
                 }
 
