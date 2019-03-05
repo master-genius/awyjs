@@ -84,7 +84,7 @@ curl 'http://localhost:8080/test?name=helo'
 
 #### 获取POST提交的数据
 
-```
+``` JavaScript
 
 const awy = require('awy');
 
@@ -112,7 +112,7 @@ curl 'http://localhost:8080/pt' -d 'username=albert'
 
 上传的文件会被解析到rr.req.UploadFiles，结构如下：
 
-```
+``` JavaScript
 
 {
     "image" : [
@@ -153,7 +153,7 @@ curl 'http://localhost:8080/pt' -d 'username=albert'
 
 ##### 上传文件的处理
 
-```
+``` JavaScript
 
 const awy = require('awy');
 
@@ -209,7 +209,7 @@ curl 'http://localhost:8080/upload' -F 'image=@tmp/a.png'
 
 awy支持中间件模式，添加方式很简单。
 
-```
+``` JavaScript
 
 const awy = require('awy');
 
@@ -291,18 +291,22 @@ awy的路由非常简单，除了基本的字符串，仅仅使用:支持参数�
 
 #### RESTFul
 
-```
+``` JavaScript
 
 const awy = require('awy');
 
 var as = new awy();
 
-as.get('/test', async rr => {
-   ....     
+as.get('/content/:id', async rr => {
+   ....
 });
 
-as.post('/test', async rr => {
-    ...        
+as.post('/content', async rr => {
+    ...
+});
+
+as.put('/content/:id', async rr => {
+    ...
 });
 
 as.map(['GET', 'PUT', 'DELETE'], '/resource/:id', async rr => {
@@ -316,7 +320,7 @@ as.map(['GET', 'PUT', 'DELETE'], '/resource/:id', async rr => {
 
 框架使用一些选项控制某些功能，选项信息如下。
 
-```
+``` JavaScript
 
 {
     //此配置表示POST/PUT提交表单的最大字节数，也是上传文件的最大限制，
