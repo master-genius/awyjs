@@ -14,6 +14,7 @@ function moveUploadFile(uf) {
     );
 }
 
+//针对/upload路由的中间件，需要URL携带参数utoken=I-like-awy才可以请求成功。
 aserv.add(async (rr, next) => {
     if (rr.req.GetQueryParam('utoken') === 'I-like-awy') {
         await next(rr);
@@ -21,6 +22,27 @@ aserv.add(async (rr, next) => {
         rr.res.Body = 'You need to say: I like awy\n';
     }
 }, ['/upload']);
+
+//针对/upload2路由的中间件，单文件上传检测文件大小不能超过2M。
+aserv.add(async (rr, next) => {
+    var img = rr.req.GetFile('image');
+    if (!img) {
+        rr.res.Body = 'image not found';
+    } else if (Buffer.byteLength(img.data, 'binary') > 2000000 ) {
+        rr.res.Body = 'image size too large';
+    } else {
+        await next(rr);
+    }
+
+}, ['/upload2']);
+
+
+//GET请求IsUpload为false，并且不会有GetFile方法。
+aserv.get('/', async rr => {
+    console.log(rr.req.IsUpload, typeof rr.req.GetFile);
+    rr.res.Body = 'Helo';
+});
+
 
 aserv.post('/upload', async rr => {
     for(var k in rr.req.UploadFiles) {
@@ -31,7 +53,6 @@ aserv.post('/upload', async rr => {
 });
 
 aserv.post('/upload2', async rr => {
-    console.log(rr.req.GetBody());
 
     var f = rr.req.GetFile('image');
     if (f) {

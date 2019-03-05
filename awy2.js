@@ -411,45 +411,52 @@ var awy = function () {
         req.ParseExtName = the.parseExtName;
         req.GenFileName = the.genFileName;
 
-        req.GetFile = function(name, ind = 0) {
-            if (req.UploadFiles[name] === undefined) {
-                return null;
-            }
-            if (ind < 0 || ind >= req.UploadFiles[name].length) {
-                return null;
-            }
-            return req.UploadFiles[name][ind];
-        };
+        req.IsUpload = false;
+        if (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE') {
+            req.IsUpload = the.checkUploadHeader(req.headers['content-type']);
+        }
 
-        /*
-            options:
-                path   
-                filename
+        if (req.IsUpload && the.config.parse_upload) {
 
-        */
-        req.MoveFile = function (upf, options) {
-            if (!options.filename) {
-                options.filename = req.GenFileName(upf.filename);
-            }
+            req.GetFile = function(name, ind = 0) {
+                if (req.UploadFiles[name] === undefined) {
+                    return null;
+                }
+                if (ind < 0 || ind >= req.UploadFiles[name].length) {
+                    return null;
+                }
+                return req.UploadFiles[name][ind];
+            };
 
-            var target = options.path + '/' + options.filename;
-            
-            return new Promise((rv, rj) => {
-                fs.writeFile(target, upf.data, {encoding : 'binary'}, err => {
-                    if (err) {
-                        rj(err);
-                    } else {
-                        rv({
-                            filename : options.filename,
-                            target : target
-                        });
-                    }
+            /*
+                options:
+                    path   
+                    filename
+            */
+            req.MoveFile = function (upf, options) {
+                if (!options.filename) {
+                    options.filename = req.GenFileName(upf.filename);
+                }
+
+                var target = options.path + '/' + options.filename;
+                
+                return new Promise((rv, rj) => {
+                    fs.writeFile(target, upf.data, {encoding : 'binary'}, err => {
+                        if (err) {
+                            rj(err);
+                        } else {
+                            rv({
+                                filename : options.filename,
+                                target : target
+                            });
+                        }
+                    });
                 });
-            });
-        };
+            };
+
+        }
         
         res.Body = '';
-
 
         var get_params = url.parse(req.url,true);
         if (get_params.pathname == '') {
@@ -461,7 +468,6 @@ var awy = function () {
         req.BodyParam = {};
         req.UploadFiles = {};
         req.BodyRawData = '';
-        req.IsUpload = false;
 
         req.GetQueryParam = function(key, defval = null) {
             if (req.QueryParam && req.QueryParam[key]) {
@@ -489,8 +495,6 @@ var awy = function () {
         if (req.method=='GET'){
             return the.execRequest(get_params.pathname, req, res);
         } else if (req.method == 'POST' || req.method == 'PUT' || req.method == 'DELETE') {
-            
-            req.IsUpload = the.checkUploadHeader(req.headers['content-type']);
             
             req.on('data',(data) => {
                 req.BodyRawData += data.toString('binary');
