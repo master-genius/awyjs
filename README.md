@@ -346,7 +346,7 @@ as.map(['GET', 'PUT', 'DELETE'], '/resource/:id', async rr => {
     upload_mode     : 'mem',
 
     //自动解析上传的数据
-    parse_upload    : true,
+    parse_upload    : false,
 
     //开启HTTPS
     https_on        : false,
@@ -359,4 +359,13 @@ as.map(['GET', 'PUT', 'DELETE'], '/resource/:id', async rr => {
 };
 
 ```
+
+
+### 提醒
+
+文件awy2.js是一个比较大的版本更新，暂时先不要使用，内部接口有所调整，但是目前设计上向后兼容，不影响基于awy.js的代码。待测试后发布即可使用。
+
+
+
+
 
