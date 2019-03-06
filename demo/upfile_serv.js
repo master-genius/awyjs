@@ -43,6 +43,9 @@ aserv.get('/', async rr => {
     rr.res.Body = 'Helo';
 });
 
+aserv.post('/pt', async rr => {
+    rr.res.Body = rr.req.GetBody();
+});
 
 aserv.post('/upload', async rr => {
     for(var k in rr.req.UploadFiles) {
@@ -66,11 +69,13 @@ aserv.post('/upload2', async rr => {
             rr.res.Body = ret;
         }, err => {
             console.log(err);
+            throw err;
         })
         .catch(err => {
             console.log(err);
+            rr.res.Body = 'upload image failed';
         });
-        console.log(flag);
+
     } else {
         rr.res.Body = 'Error: file not found';
     }

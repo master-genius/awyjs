@@ -7,15 +7,16 @@ var as = new awy();
 as.config.parse_upload = true;
 as.config.pid_file = './awy.pid';
 
-
+/*
 as.add(async (rr, next) => {
     rr.res.write('Linux\n');
     await next(rr);
     rr.res.Body += '\nok';
 }, ['/', '/test']);
+*/
 
-//as.add(awy_sess);
-//as.add(awy_cookie);
+as.add(awy_sess);
+as.add(awy_cookie);
 
 as.get('/', async rr => {
     rr.res.Body = 'success';
