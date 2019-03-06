@@ -1,4 +1,6 @@
-const awy = require('./awy.js');
+const awy = require('../awy2.js');
+const awy_cookie = require('../awy-cookie.js');
+const awy_sess = require('../awy-session.js');
 
 var as = new awy();
 
@@ -12,8 +14,21 @@ as.add(async (rr, next) => {
     rr.res.Body += '\nok';
 }, ['/', '/test']);
 
+//as.add(awy_sess);
+//as.add(awy_cookie);
+
 as.get('/', async rr => {
     rr.res.Body = 'success';
+});
+
+as.get('/cookie/test', async rr => {
+    rr.res.Body = rr.req.CookieParam;
+});
+
+
+as.get('/headers', async rr => {
+    console.log(rr.req);
+    rr.res.Body = rr.req.headers;
 });
 
 as.get('/test', async rr => {
