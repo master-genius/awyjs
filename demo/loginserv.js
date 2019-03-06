@@ -1,6 +1,6 @@
 const awy = require('../awy2.js');
-const awy_cookie = require('../awy-cookie.js');
-const awysession = require('../awy-session2.js');
+const awy_cookie = require('../middleware/awy-cookie.js');
+const awysession = require('../middleware/awy-session2.js');
 const fs = require('fs');
 
 var as = new awy();
