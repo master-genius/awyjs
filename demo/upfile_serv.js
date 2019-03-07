@@ -1,4 +1,4 @@
-const awy = require('../awy2.js');
+const awy = require('../awy.js');
 const fs = require('fs');
 
 aserv = new awy();
@@ -8,7 +8,7 @@ aserv.config.parse_upload = true;
 
 function moveUploadFile(uf) {
     fs.writeFileSync(
-        './upload/' + uf.filename,
+        '../upload/' + uf.filename,
         uf.data,
         {encoding : 'binary'}
     );
@@ -61,7 +61,7 @@ aserv.post('/upload2', async rr => {
     if (f) {
         var flag = false;
         await rr.req.MoveFile(f,{
-            path : './upload/images'
+            path : '../upload/images'
         })
         .then(ret => {
             console.log('end upload');

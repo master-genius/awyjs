@@ -1,4 +1,4 @@
-const awyhttp = require('awyhttp');
+const awyhttp = require('../httpclient/awyhttp.js');
 
 
 awyhttp.get('http://localhost:2021/')
@@ -32,13 +32,14 @@ awyhttp.upload('http://localhost:2021/upload2', {
     console.log(err);
 });
 
-var img_url = 'https://api.w3xm.top/media/images/u/u195f09b89a97fe441699debbe2b4600f21027072.png';
+
+var img_url = 'http://www.bjp.org.cn/picture/0/1903071209325972565.jpg';
 
 awyhttp.download(img_url, {
     method : 'GET',
-    target : '/home/wy/tmp/dtest.png'
+    target : '/home/wy/tmp/1903071209325972565.jpg'
 }).then(data => {
-    console.log(data);
+    console.log('ok');
 }, err => {
     console.log(err);
 }).catch(err => {

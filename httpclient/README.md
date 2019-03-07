@@ -13,6 +13,7 @@
 
 const awyhttp = require('awyhttp');
 
+//访问http://localhost:2021需要先启动demo中的upfile_serv.js服务。
 
 awyhttp.get('http://localhost:2021/')
 .then(data => {
@@ -22,8 +23,6 @@ awyhttp.get('http://localhost:2021/')
 }).catch(err => {
     console.log(err);
 });
-
-
 
 
 ```
@@ -68,19 +67,21 @@ awyhttp.upload('http://localhost:2021/upload2', {
 
 ``` JavaScript
 
-var img_url = 'https://api.w3xm.top/media/images/u/u195f09b89a97fe441699debbe2b4600f21027072.png';
+var img_url = 'http://www.bjp.org.cn/picture/0/1903071209325972565.jpg';
 
+/*
+    设置好目标路径后，内部会创建一个可写流，数据是实时写入到文件的。
+*/
 awyhttp.download(img_url, {
     method : 'GET',
-    target : '/tmp/dtest.png'
+    target : '/home/wy/tmp/1903071209325972565.jpg'
 }).then(data => {
-    console.log(data);
+    console.log('ok');
 }, err => {
     console.log(err);
 }).catch(err => {
     console.log(err);
 });
 
+
 ```
-
-
