@@ -105,9 +105,8 @@ module.exports = new function() {
 
                 let error = null;
                 if (res.statusCode !== 200) {
-                    error = new Error(`request failed, status code:
-                                    ${res.statusCode}`
-                                );
+                    error = new Error(
+                            `request failed, status code:${res.statusCode}`);
                 }
 
                 if (error) {
@@ -121,9 +120,6 @@ module.exports = new function() {
                 res.on('data', (data) => {
                     if (options.onData !== undefined && typeof options.onData === 'function') {
                         options.onData(data);
-                    }
-                    if (options.toStream !== undefined) {
-                        options.toStream.write(Buffer.from(data, 'binary'));
                     }
 
                     get_data += data.toString(options.encoding);
@@ -171,7 +167,7 @@ module.exports = new function() {
                 opts.headers[k] = options.headers[k];
             }
         }
-
+        var post_data = '';
         if (opts.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
             post_data = qs.stringify(options.data);
         } else {
@@ -193,9 +189,7 @@ module.exports = new function() {
                     if (options.onData !== undefined && typeof options.onData === 'function') {
                         options.onData(data);
                     }
-                    if (options.toStream !== undefined) {
-                        options.toStream.write(Buffer.from(data, 'binary'));
-                    }
+                    
                     res_data += data.toString(options.encoding);
                 });
 
@@ -344,34 +338,87 @@ module.exports = new function() {
     */
     this.download = function(url, options) {
 
-        if (!options.method) {
-            options.method = 'GET';
+        var data_stream = fs.createWriteStream(options.target, {encoding:'binary'});
+        if (options.encoding === undefined) {
+            options.encoding = 'binary';
         }
 
-        var data_stream = fs.createWriteStream(options.target, {encoding:'binary'});
-        return new Promise((rv, rj) => {
+        var opts = this.parseUrl(url);
+        var h = (opts.protocol === 'https:') ? https : http;
+        opts.method = options.method;
+        if (opts.method === 'POST') {
+            opts.headers = {
+                'Content-Type'  : 'application/x-www-form-urlencoded',
+            };
+        }
+
+        if (options.headers !== undefined) {
+            for(var k in options.headers) {
+                opts.headers[k] = options.headers[k];
+            }
+        }
+
+        var post_data = '';
+        if (opts.method === 'POST') {
+            if (opts.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
+                post_data = qs.stringify(options.data);
+            } else {
+                if (typeof options.data === 'object') {
+                    post_data = JSON.stringify(options.data);
+                } else {
+                    post_data = options.data;
+                }
+            }
+            
+            opts.headers['Content-Length'] = Buffer.byteLength(post_data);
+        }
+        
+        return new Promise ((rv, rj) => {
             data_stream.on('error', (err) => {
-                rj(err);
+                r.destroy(err);
             });
 
             data_stream.on('finish', () => {
-                rv(true);
+                //rv(true);
             });
 
-            if (options.method == 'GET') {
-                this.get(url, {
-                    encoding : 'binary',
-                    toStream : data_stream
+            var r = h.request(opts, (res) => {
+
+                let error = null;
+                if (res.statusCode !== 200) {
+                    error = new Error(
+                            `request failed, status code:${res.statusCode}`);
+                }
+
+                if (error) {
+                    res.resume();
+                    rj(error);
+                }
+
+                res.setEncoding(options.encoding);
+                res.on('data', (data) => {
+                    data_stream.write(Buffer.from(data, 'binary'));
                 });
-            } else if (options.method == 'POST') {
-                this.post(url, {
-                    headers  : options.headers,
-                    encoding : 'binary',
-                    data     : options.data,
-                    toStream : data_stream
+
+                res.on('end', () => {
+                    data_stream.end();
+                    rv(true);
                 });
-            }
+
+                res.on('error', (err) => {
+                    data_stream.end();
+                    rj(err);
+                });
+            });
+
+            r.on('error', (e) => {
+                rj(e);
+            });
+
+            r.write(post_data);
+            r.end();
         });
+
     };
 
 };
