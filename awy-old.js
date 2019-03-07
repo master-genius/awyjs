@@ -384,90 +384,83 @@ var awy = function () {
 
     };
 
-    this.parseExtName = function (filename) {
-        if (filename.search(".") < 0) {
-            return '';
-        }
-        name_slice = filename.split('.');
-        if (name_slice.length <= 0) {
-            return '';
-        }
-        return name_slice[name_slice.length-1];
-    };
-
-    this.genFileName = function(filename, pre_str='') {
-        var org_name = `${pre_str}${Date.now()}`;
-        var hash = crypto.createHash('sha1');
-        hash.update(org_name);
-        return hash.digest('hex') + '.' + the.parseExtName(filename);
-    };
-
     this.reqHandler = function (req, res) {
 
+        req.ParseExtName = function(filename) {
+            if (filename.search(".") < 0) {
+                return '';
+            }
+            name_slice = filename.split('.');
+            if (name_slice.length <= 0) {
+                return '';
+            }
+            return name_slice[name_slice.length-1];
+        };
+
+        req.GenFileName = function(filename, pre_str='') {
+            var org_name = `${pre_str}${Date.now()}`;
+            var hash = crypto.createHash('sha1');
+            hash.update(org_name);
+            return hash.digest('hex') + '.' + req.ParseExtName(filename);
+        };
+
+        req.GetFile = function(name, ind = 0) {
+            if (req.UploadFiles[name] === undefined) {
+                return null;
+            }
+            if (ind < 0 || ind >= req.UploadFiles[name].length) {
+                return null;
+            }
+            return req.UploadFiles[name][ind];
+        };
+
         /*
-            这两个函数因为和请求数据无关，被移出到上一层。
-            并且使用添加两个属性指向它们，这样不影响代码的调用方式。
+            options:
+                path   
+                filename
+
         */
-        req.ParseExtName = the.parseExtName;
-        req.GenFileName = the.genFileName;
+        req.MoveFile = function (upf, options) {
+            if (!options.filename) {
+                options.filename = req.GenFileName(upf.filename);
+            }
 
-        req.IsUpload = false;
-        if (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE') {
-            req.IsUpload = the.checkUploadHeader(req.headers['content-type']);
-        }
-
-        if (req.IsUpload && the.config.parse_upload) {
-
-            req.GetFile = function(name, ind = 0) {
-                if (req.UploadFiles[name] === undefined) {
-                    return null;
-                }
-                if (ind < 0 || ind >= req.UploadFiles[name].length) {
-                    return null;
-                }
-                return req.UploadFiles[name][ind];
-            };
-
-            /*
-                options:
-                    path   
-                    filename
-            */
-            req.MoveFile = function (upf, options) {
-                if (!options.filename) {
-                    options.filename = req.GenFileName(upf.filename);
-                }
-
-                var target = options.path + '/' + options.filename;
-                
-                return new Promise((rv, rj) => {
-                    fs.writeFile(target, upf.data, {encoding : 'binary'}, err => {
-                        if (err) {
-                            rj(err);
-                        } else {
-                            rv({
-                                filename : options.filename,
-                                target : target
-                            });
-                        }
-                    });
+            var target = options.path + '/' + options.filename;
+            
+            return new Promise((rv, rj) => {
+                fs.writeFile(target, upf.data, {encoding : 'binary'}, err => {
+                    if (err) {
+                        rj(err);
+                    } else {
+                        rv({
+                            filename : options.filename,
+                            target : target
+                        });
+                    }
                 });
-            };
+            });
+        };
 
-        }
-        
+        res.send = function(data) {
+            if (typeof data === 'object') {
+                res.end(JSON.stringify(data));
+            } else if (data instanceof Array) {
+                res.end(JSON.stringify(data));
+            } else if (typeof data === 'string'){
+                res.end(data);
+            } else {
+                res.end('');
+            }
+        };
         res.Body = '';
 
         var get_params = url.parse(req.url,true);
-        if (get_params.pathname == '') {
-            get_params.pathname = '/';
-        }
         
-        req.QueryParam = get_params.query;
-        req.PATHINFO = get_params.pathname;
         req.BodyParam = {};
         req.UploadFiles = {};
-        req.BodyRawData = '';
+
+        req.QueryParam = get_params.query;
+        req.PATHINFO = get_params.pathname;
 
         req.GetQueryParam = function(key, defval = null) {
             if (req.QueryParam && req.QueryParam[key]) {
@@ -491,10 +484,19 @@ var awy = function () {
             return req.BodyParam;
         };
 
+        req.BodyRawData = '';
+
+        if (get_params.pathname == '') {
+            get_params.pathname = '/';
+        }
+
+        req.IsUpload = false;
 
         if (req.method=='GET'){
             return the.execRequest(get_params.pathname, req, res);
         } else if (req.method == 'POST' || req.method == 'PUT' || req.method == 'DELETE') {
+            
+            req.IsUpload = the.checkUploadHeader(req.headers['content-type']);
             
             req.on('data',(data) => {
                 req.BodyRawData += data.toString('binary');
@@ -526,6 +528,7 @@ var awy = function () {
             req.on('error', (err) => {
                 req.BodyRawData = '';
                 req.resume();
+                //console.log(err);
                 return ;
             });
 
@@ -537,26 +540,10 @@ var awy = function () {
 
     };
 
-    /*
-        这是最终添加的请求中间件。基于洋葱模型，
-        这个中间件最先执行，所以最后会返回响应结果，
-        一开始挂在res上的send函数被剔除，在此处直接
-        检测res.Body类型返回数据。
-    */
     this.addFinalResponse = function() {
         var fr = async function(rr, next) {
             await next(rr);
-            if (rr.res.Body === null || rr.res.Body === false) {
-                rr.res.end();
-            } else if (typeof rr.res.Body === 'object') {
-                rr.res.end(JSON.stringify(rr.res.Body));
-            } else if (rr.res.Body instanceof Array) {
-                rr.res.end(JSON.stringify(rr.res.Body));
-            } else if (typeof rr.res.Body === 'string') {
-                rr.res.end(rr.res.Body);
-            } else {
-                rr.res.end('');
-            }
+            rr.res.send(rr.res.Body);
         };
         the.add(fr);
     };
