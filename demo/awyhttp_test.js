@@ -37,7 +37,7 @@ var img_url = 'http://www.bjp.org.cn/picture/0/1903071209325972565.jpg';
 
 awyhttp.download(img_url, {
     method : 'GET',
-    target : '/home/wy/tmp/1903071209325972565.jpg'
+    target : '/home/wy/tm/1903071209325972565.jpg'
 }).then(data => {
     console.log('ok');
 }, err => {

@@ -1,6 +1,6 @@
-const awy = require('../awy2.js');
-const awy_cookie = require('../awy-cookie.js');
-const awy_sess = require('../awy-session.js');
+const awy = require('../awy.js');
+const awy_cookie = require('../middleware/awy-cookie.js');
+const awy_sess = require('../middleware/awy-session2.js');
 
 var as = new awy();
 
@@ -15,11 +15,28 @@ as.add(async (rr, next) => {
 }, ['/', '/test']);
 */
 
-as.add(awy_sess);
+as.add(awy_sess.mid);
 as.add(awy_cookie);
 
 as.get('/', async rr => {
     rr.res.Body = 'success';
+});
+
+as.get('/html', async rr => {
+    rr.res.Body = `
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <title>Test</title>
+            </head>
+            <body>
+                <div>
+                    <p>Hello</p>
+                </div>
+            </body>
+        </html>
+    `;
 });
 
 as.get('/cookie/test', async rr => {
@@ -58,4 +75,3 @@ as.map(['POST', 'PUT'], '/upload', async rr => {
 
 //default 127.0.0.1:2020
 as.ants();
-
