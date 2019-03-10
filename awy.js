@@ -593,10 +593,11 @@ module.exports = function () {
     */
     this.addFinalResponse = function() {
         var fr = async function(rr, next) {
-            await next(rr);
             if (!rr.res.getHeader('Content-Type')) {
                 rr.res.setHeader('Content-Type', 'text/plain,text/html;charset=utf8');
             }
+            await next(rr);
+            
             if (rr.res.Body === null || rr.res.Body === false) {
                 rr.res.end();
             } else if (typeof rr.res.Body === 'object') {
