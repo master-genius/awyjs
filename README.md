@@ -210,7 +210,7 @@ curl 'http://localhost:8080/upload' -F 'image=@tmp/a.png'
 
 awy的中间模式可以用下图描述：
 
-![](/image/middleware.png)
+![](/images/middleware.png)
 
 awy中间件添加方式很简单。
 
