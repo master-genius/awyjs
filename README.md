@@ -1,8 +1,10 @@
 ### awy框架
 
-awy是一个使用NodeJS开发的Web框架，很简单，也很小。基于async和await关键字。
+awy是一个NodeJS环境的Web服务端框架，很简单，也很小。基于async和await关键字。其核心就是一个基于中间件模式根据路由分发请求的处理过程。
+
 
 #### 支持功能
+
 * 中间件
 * 路由
 * 中间件按照路由规则匹配执行
@@ -11,10 +13,9 @@ awy是一个使用NodeJS开发的Web框架，很简单，也很小。基于async
 * 启用守护进程模式
 * 配置HTTPS
 
+#### API参考
 
-### 提醒
-
-文件awy-old.js是之前的版本，在使用上和awy.js是兼容的，只是新版本在内部设计上做了一些优化调整。
+[awy核心API参考](https://awy.linuslinux.com/#api)
 
 
 #### 使用示例
@@ -179,7 +180,7 @@ ar.post('/upload', async rr => {
         return ;
     }
 
-    await rr.req.MoveFile({
+    await rr.req.MoveFile(uf, {
         path : './upload/images'
     })
     .then(ret => {
@@ -207,7 +208,11 @@ curl 'http://localhost:8080/upload' -F 'image=@tmp/a.png'
 
 #### 中间件
 
-awy支持中间件模式，添加方式很简单。
+awy的中间模式可以用下图描述：
+
+![](/image/middleware.png)
+
+awy中间件添加方式很简单。
 
 ``` JavaScript
 
@@ -344,7 +349,7 @@ as.map(['GET', 'PUT', 'DELETE'], '/resource/:id', async rr => {
 
 {
     //此配置表示POST/PUT提交表单的最大字节数，也是上传文件的最大限制，
-    post_max_size   : 8000000,
+    body_max_size   : 8000000,
 
     //开启守护进程，守护进程用于上线部署，要使用ants接口，run接口不支持
     daemon          : false,
@@ -389,3 +394,28 @@ as.map(['GET', 'PUT', 'DELETE'], '/resource/:id', async rr => {
 
 ```
 
+#### 在后台执行
+
+run接口运行后，只能作为当前shell的子进程执行，如果加上&运行命令，尽管现在最新的bash把后台进程作为单独的一个执行线程独立出去，但是实际测试发现，在执行一段时间后会退出。具体原因还没有深入研究。不过比较保险的做法是创建守护进程。
+
+这个操作使用ants接口可以快速实现，ants接口的前两个参数和run一致：接受host和port。第三个参数是一个整数表示要创建几个子进程处理请求，不填写默认为0，这种情况会根据CPU核心数创建子进程。
+
+ants接口运行后，Master进程负责收集子进程处理请求的日志信息并写入到日志文件，这需要config中log_type设置为file，并且设置log_file以及error_log_file的路径：
+
+```
+
+const awy = require('awy');
+
+var ant = new awy();
+
+ant.config.log_type = 'file';
+ant.config.log_file = './access.log';
+ant.config.error_log_file = './error.log';
+
+//....
+
+ant.ants('0.0.0.0', 80);
+
+```
+
+ants运行后，Master进程会把stdout和stderr重定向到指定的文件，而子进程处理请求使用console.log仍然会输出到终端。

@@ -8,7 +8,7 @@ const cluster = require('cluster');
 const os = require('os');
 const {spawn} = require('child_process');
 
-module.exports = function () {
+var awy = function () {
     
     var the = this;
 
@@ -59,6 +59,10 @@ module.exports = function () {
         },
     };
 
+    this.flag = {
+        last_middleware : false
+    };
+
     this.ApiTable = {};
     
     this.get = function(api_path, callback) {
@@ -87,35 +91,10 @@ module.exports = function () {
         }
     };
 
-
-    /*
-        由于在路由匹配时会使用/分割路径，所以在添加路由时先处理好。
-        允许:表示变量，*表示任何路由，但是二者不能共存，因为无法知道后面的是变量还是路由。
-        比如：/static/*可以作为静态文件所在目录，但是后面的就直接作为*表示的路径，
-        并不进行参数解析。
-    */
     this.addPath = function(api_path, method, callback) {
 
         if (this.ApiTable[api_path] === undefined) {
-            this.ApiTable[api_path] = {
-                isArgs:  false,
-                isStar:  false,
-                routeArr: [],
-                ReqCall: {},
-            };
-            if (api_path.indexOf(':') >= 0) {
-                this.ApiTable[api_path].isArgs = true;
-            }
-            if (api_path.indexOf('*') >= 0) {
-                this.ApiTable[api_path].isStar = true;
-            }
-
-            if(this.ApiTable[api_path].isStar && this.ApiTable[api_path].isArgs) {
-                var errinfo = `: * can not in two places at once ->  ${api_path}`;
-                throw errinfo;
-            }
-
-            this.ApiTable[api_path].routeArr = api_path.split('/').filter(p => p.length > 0);
+            this.ApiTable[api_path] = {};
         }
 
         switch (method) {
@@ -123,62 +102,39 @@ module.exports = function () {
             case 'POST':
             case 'PUT':
             case 'DELETE':
-                this.ApiTable[api_path].ReqCall[method] = callback;
+                this.ApiTable[api_path][method] = callback;
                 return ;
             default:;
         }
     };
-
-    /*
-        如果路径超过2000字节长度，并且分割数组太多，length超过8则不处理。
-    */
+    
     this.findPath = function(path) {
-        if (path.length > 2000) {
-            return null;
-        }
         var path_split = path.split('/');
         path_split = path_split.filter(p => p.length > 0);
-        if (path_split.length > 8) {
-            return null;
-        }
 
+        var ap = [];
+        var ind = 0;
         var next = 0;
         var args = {};
-        var rt = null;
         for (var k in the.ApiTable) {
-            rt = the.ApiTable[k];
-            if (rt.isArgs === false && rt.isStar === false) {
+            if (k.search(':') < 0) {
                 continue;
             }
-
-            if (
-              (rt.routeArr.length !== path_split.length && rt.isStar === false)
-              ||
-              (rt.routeArr.length > path_split.length)
-            ) {
+            ap = k.split('/').filter(p => p.length > 0);
+            if (ap.length !== path_split.length) {
                 continue;
             }
-
             next = false;
             args = {};
-            
-            if (rt.isStar) {
-                for(var i=0; i<rt.routeArr.length; i++) {
-                    if (rt.routeArr[i] == '*') {
-                        args.starPath = path_split.slice(i+1).join('/');
-                    } else if(rt.routeArr[i] !== path_split[i]) {
-                        next = true;
-                        break;
-                    }
+            for(ind=0; ind < ap.length; ind++) {
+                if (ind >= path_split.length) {
+                    break;
                 }
-            } else {
-                for(var i=0; i<rt.routeArr.length; i++) {
-                    if (rt.routeArr[i][0] == ':') {
-                        args[rt.routeArr[i].substring(1)] = path_split[i];
-                    } else if (rt.routeArr[i] !== path_split[i]) {
-                        next = true;
-                        break;
-                    }
+                if (ap[ind].search(':') >= 0) {
+                    args[ap[ind].substring(1)] = path_split[ind];
+                } else if (ap[ind] !== path_split[ind]) {
+                    next = true;
+                    break;
                 }
             }
 
@@ -197,6 +153,7 @@ module.exports = function () {
     this.execRequest = function (path, req, res) {
         var pk = null;
         var route_key = null;
+        req.ORGPATH = path;
         /*
             路由处理会自动处理末尾的/，
             /content/123和/content/123/是同一个请求
@@ -233,13 +190,13 @@ module.exports = function () {
 
         if (route_key === null) {
             res.statusCode = 404;
-            res.end('');
+            res.end("request not found");
             return ;
         }
         
-        req.ROUTEPATH = route_key;
+        req.PATHINFO = route_key;
 
-        var R = the.ApiTable[route_key].ReqCall;
+        var R = the.ApiTable[route_key];
         req.RequestCall = R[req.method];
 
         if (R[req.method] === undefined
@@ -294,11 +251,11 @@ module.exports = function () {
 
             if (preg) {
                 if (
-                    (typeof preg === 'string' && preg !== rr.req.ROUTEPATH)
+                    (typeof preg === 'string' && preg !== rr.req.PATHINFO)
                     ||
-                    (preg instanceof RegExp && !preg.test(rr.req.ROUTEPATH))
+                    (preg instanceof RegExp && !preg.test(rr.req.PATHINFO))
                     ||
-                    (preg instanceof Array && preg.indexOf(rr.req.ROUTEPATH) < 0)
+                    (preg instanceof Array && preg.indexOf(rr.req.PATHINFO) < 0)
                 ) {
                     await jump(rr, the.mid_chain[last]);
                     return rr;
@@ -446,14 +403,6 @@ module.exports = function () {
     };
 
     this.reqHandler = function (req, res) {
-        if (cluster.isWorker) {
-            process.send({
-                time : (new Date()).toString(),
-                method : req.method,
-                url : req.url,
-                //remote_addr : req.
-            }, () => {});
-        }
 
         /*
             这两个函数因为和请求数据无关，被移出到上一层。
@@ -515,8 +464,7 @@ module.exports = function () {
         }
         
         req.QueryParam = get_params.query;
-        req.ORGPATH = get_params.pathname;
-        req.ROUTEPATH = '';
+        req.PATHINFO = get_params.pathname;
         req.BodyParam = {};
         req.UploadFiles = {};
         req.BodyRawData = '';
@@ -597,11 +545,7 @@ module.exports = function () {
     */
     this.addFinalResponse = function() {
         var fr = async function(rr, next) {
-            if (!rr.res.getHeader('Content-Type')) {
-                rr.res.setHeader('Content-Type', 'text/plain,text/html;charset=utf8');
-            }
             await next(rr);
-            
             if (rr.res.Body === null || rr.res.Body === false) {
                 rr.res.end();
             } else if (typeof rr.res.Body === 'object') {
@@ -618,8 +562,9 @@ module.exports = function () {
     };
 
     this.run = function(host = 'localhost', port = 2020) {
-        
-        this.addFinalResponse();
+        if (this.flag.last_middleware === false) {
+            this.addFinalResponse();
+        }
 
         var opts = {};
         var serv = null;
@@ -649,11 +594,8 @@ module.exports = function () {
         if (process.argv.indexOf('--daemon') > 0) {
 
         } else if (this.config.daemon) {
-            var args = process.argv.slice(1);
-            args.push('--daemon');
             var opt_stdio = ['ignore'];
-
-            if (the.config.log_type == 'file') {
+            if (this.config.log_type == 'file') {
                 try {
                     var out_log = fs.openSync(this.config.log_file, 'a+');
                     var err_log = fs.openSync(this.config.error_log_file, 'a+');
@@ -662,10 +604,13 @@ module.exports = function () {
                     return false;
                 }
                 opt_stdio = ['ignore', out_log, err_log];
-            } else if (the.config.log_type == 'stdio') {
+            } else if (this.config.log_type == 'stdio') {
                 opt_stdio = ['ignore', 1, 2];
             }
 
+            var args = process.argv.slice(1);
+            args.push('--daemon');
+    
             const serv = spawn (
                     process.argv[0],
                     args,
@@ -677,6 +622,12 @@ module.exports = function () {
             serv.unref();
             return true;
         }
+        /*
+            添加最后的中间件处理响应，并设置标记为true
+            此时，再次调用run不会继续添加此中间件。
+        */
+        the.addFinalResponse();
+        the.flag.last_middleware = true;
         
         if (cluster.isMaster) {
             if (num <= 0) {
@@ -696,14 +647,11 @@ module.exports = function () {
             for(var i=0; i<num; i++) {
                 cluster.fork();
             }
-
-            if (cluster.isMaster) {
-                cluster.on('message', (worker, message, handle) => {
-                    console.log(message);
-                });
-            }
-        } else if (cluster.isWorker) {
+        } else if (cluster.isWorker){
             this.run(host, port);
         }
     };
 };
+
+module.exports = awy;
+

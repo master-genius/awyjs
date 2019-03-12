@@ -2,9 +2,10 @@ const awy = require('../awy-new.js');
 
 var as = new awy();
 
+as.config.body_max_size = 100000;
 as.config.parse_upload = true;
-//as.config.daemon = true;
-//as.config.log_type = 'file';
+as.config.daemon = true;
+as.config.log_type = 'file';
 //console.log(process.pid, 'running');
 
 as.add(async (rr, next) => {
@@ -13,7 +14,7 @@ as.add(async (rr, next) => {
 });
 
 as.get('/', async rr => {
-    console.log(as.mid_chain);
+    //console.log(as.mid_chain);
     rr.res.Body = 'success';
 });
 

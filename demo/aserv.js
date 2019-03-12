@@ -45,7 +45,7 @@ as.get('/cookie/test', async rr => {
 
 
 as.get('/headers', async rr => {
-    console.log(rr.req);
+    console.log(rr.req.headers);
     rr.res.Body = rr.req.headers;
 });
 

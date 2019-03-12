@@ -1,0 +1,1260 @@
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', );
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:771
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:771:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)
+/home/wy/node/awyjs/awy-new.js:772
+                var stdo = fs.creatWriteStream('', {fd : 1});
+                              ^
+
+TypeError: fs.creatWriteStream is not a function
+    at module.exports.ants (/home/wy/node/awyjs/awy-new.js:772:31)
+    at Object.<anonymous> (/home/wy/node/awyjs/demo/dserv.js:73:4)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:743:3)

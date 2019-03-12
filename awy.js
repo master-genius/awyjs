@@ -14,7 +14,7 @@ module.exports = function () {
 
     this.config = {
         //此配置表示POST/PUT提交表单的最大字节数，也是上传文件的最大限制，
-        post_max_size   : 8000000,
+        body_max_size   : 8000000,
 
         //开启守护进程，守护进程用于上线部署，要使用ants接口，run接口不支持
         daemon          : false,
@@ -34,10 +34,8 @@ module.exports = function () {
                 stdio   标准输入输出，可用于调试
                 ignore  没有
                 file    文件，此时会使用log_file以及error_log_file 配置的文件路径
-
-            这个选项以及两个日志文件配置只有在开启daemon的情况下才会生效
         */
-        log_type        : 'stdio',
+        log_type        : 'ignore',
 
         /*
             mem, path
@@ -57,10 +55,6 @@ module.exports = function () {
             key     : '',
             cert    : ''
         },
-    };
-
-    this.flag = {
-        last_middleware : false
     };
 
     this.ApiTable = {};
@@ -287,7 +281,9 @@ module.exports = function () {
         添加中间件，第二个参数允许设置针对哪些路由起作用
     */
     this.add = function(midcall, preg = null) {
-        
+        /*
+            直接跳转下层中间件，根据匹配规则如果不匹配则执行此函数。
+        */
         var jump = async function(rr, next) {
             await next(rr);
             return rr;
@@ -322,7 +318,7 @@ module.exports = function () {
     
     /*
         multipart/form-data
-        multipart/byteranges
+        multipart/byteranges不支持
     */
     this.checkUploadHeader = function(headerstr) {
         var preg = /multipart.* boundary.*=/i;
@@ -332,7 +328,10 @@ module.exports = function () {
         return false;
     };
     
-    /* parse upload file, not in ranges */
+    /*
+        解析上传文件数据的函数，此函数解析的是整体的文件，
+        解析过程参照HTTP/1.1协议。
+    */
     this.parseUploadData = function(req, res) {
         var bdy = req.headers['content-type'].split('=')[1];
         bdy = bdy.trim();
@@ -368,6 +367,7 @@ module.exports = function () {
         
     };
 
+    //解析单个文件数据
     this.parseSingleFile = function(data, req) {
         var file_start = 0;
         var last_index = 0;
@@ -450,6 +450,15 @@ module.exports = function () {
     };
 
     this.reqHandler = function (req, res) {
+        if (cluster.isWorker && the.config.log_type !== 'ignore') {
+            process.send({
+                type : 'access',
+                time : (new Date()).toString(),
+                method : req.method,
+                url : req.url,
+                remote_addr : req.socket.remoteAddress
+            });
+        }
 
         /*
             这两个函数因为和请求数据无关，被移出到上一层。
@@ -539,26 +548,31 @@ module.exports = function () {
             return req.BodyParam;
         };
 
-
         if (req.method=='GET'){
             return the.execRequest(get_params.pathname, req, res);
         } else if (req.method == 'POST' || req.method == 'PUT' || req.method == 'DELETE') {
             
             req.on('data',(data) => {
                 req.BodyRawData += data.toString('binary');
-                if (req.BodyRawData.length > the.config.post_max_size) {
+                if (req.BodyRawData.length > the.config.body_max_size) {
                     req.BodyRawData = '';
                     res.statusCode = 413;
-                    res.end(`
-                            Request data too large, 
-                            out of limit(${the.config.post_max_size/1000}Kb)
-                        `);
-                    req.destroy();
-                    return ;
+                    res.end(
+                        'Request data too large, out of limit:'
+                        +'(' + (the.config.body_max_size/1000) + 'Kb)'
+                    );
+                    req.aborted = true;
+                    req.destroy(new Error('body data too large'));
                 }
             });
         
-            req.on('end',()=>{
+            req.on('end',() => {
+                if (req.aborted) {
+                    if (!res.finished) {
+                        res.end('');
+                    }
+                    return ;
+                }
                 if (! req.IsUpload) {
 
                     if (req.headers['content-type'].indexOf('application/x-www-form-urlencoded') >= 0) {
@@ -573,7 +587,16 @@ module.exports = function () {
             
             req.on('error', (err) => {
                 req.BodyRawData = '';
-                req.resume();
+                if (cluster.isWorker && the.config.log_type !== 'ignore') {
+                    process.send({
+                        type : 'error',
+                        time : (new Date()).toString(),
+                        method : req.method,
+                        url : req.url,
+                        remote_addr : req.socket.remoteAddress,
+                        errmsg : err.message
+                    });
+                }
                 return ;
             });
 
@@ -590,6 +613,7 @@ module.exports = function () {
         这个中间件最先执行，所以最后会返回响应结果，
         一开始挂在res上的send函数被剔除，在此处直接
         检测res.Body类型返回数据。
+        如果response的Header没有设置Content-Type则设置默认值。
     */
     this.addFinalResponse = function() {
         var fr = async function(rr, next) {
@@ -614,9 +638,8 @@ module.exports = function () {
     };
 
     this.run = function(host = 'localhost', port = 2020) {
-        if (this.flag.last_middleware === false) {
-            this.addFinalResponse();
-        }
+        //添加最终的中间件
+        this.addFinalResponse();
 
         var opts = {};
         var serv = null;
@@ -642,44 +665,27 @@ module.exports = function () {
         serv.listen(port, host);
     };
 
+    /*
+        这个函数是可以用于运维部署，此函数默认会根据CPU核数创建对应的子进程处理请求。
+        子进程会调用run函数。
+    */
     this.ants = function(host='127.0.0.1', port=2020, num = 0) {
         if (process.argv.indexOf('--daemon') > 0) {
 
-        } else if (this.config.daemon) {
-            var opt_stdio = ['ignore'];
-            if (this.config.log_type == 'file') {
-                try {
-                    var out_log = fs.openSync(this.config.log_file, 'a+');
-                    var err_log = fs.openSync(this.config.error_log_file, 'a+');
-                } catch (err) {
-                    console.log(err);
-                    return false;
-                }
-                opt_stdio = ['ignore', out_log, err_log];
-            } else if (this.config.log_type == 'stdio') {
-                opt_stdio = ['ignore', 1, 2];
-            }
-
+        } else if (the.config.daemon) {
             var args = process.argv.slice(1);
             args.push('--daemon');
-    
             const serv = spawn (
                     process.argv[0],
                     args,
                     {
                         detached : true,
-                        stdio : opt_stdio
+                        stdio : ['ignore', 1, 2]
                     }
                 );
             serv.unref();
             return true;
         }
-        /*
-            添加最后的中间件处理响应，并设置标记为true
-            此时，再次调用run不会继续添加此中间件。
-        */
-        the.addFinalResponse();
-        the.flag.last_middleware = true;
         
         if (cluster.isMaster) {
             if (num <= 0) {
@@ -691,7 +697,7 @@ module.exports = function () {
             ) {
                 fs.writeFile(the.config.pid_file, process.pid, (err) => {
                     if (err) {
-                        console.log(err);
+                        console.error(err);
                     }
                 });
             }
@@ -699,7 +705,54 @@ module.exports = function () {
             for(var i=0; i<num; i++) {
                 cluster.fork();
             }
-        } else if (cluster.isWorker){
+
+            if (cluster.isMaster) {
+                /*
+                    如果日志类型为file，并且设置了日志文件，
+                    则把输出流重定向到文件。
+                    但是在子进程处理请求仍然可以输出到终端。
+                */
+                if (the.config.log_type == 'file') {
+                    if(typeof the.config.log_file === 'string'
+                        && the.config.log_file.length > 0
+                    ) {
+                        var out_log = fs.createWriteStream(
+                            the.config.log_file, 
+                            {flags : 'a+' }
+                          );
+                        process.stdout.write = out_log.write.bind(out_log);
+                    }
+                    if(typeof the.config.error_log_file === 'string'
+                        && the.config.error_log_file.length > 0
+                    ) {
+                        var err_log = fs.createWriteStream(
+                            the.config.error_log_file, 
+                            {flags : 'a+' }
+                          );
+                        process.stderr.write = err_log.write.bind(err_log);
+                    }
+                }
+
+                /*
+                    检测子进程数量，如果有子进程退出则fork出差值的子进程，
+                    维持在一个恒定的值。
+                */
+                setInterval(() => {
+                    var num_dis = num - Object.keys(cluster.workers).length;
+                    for(var i=0; i<num_dis; i++) {
+                        cluster.fork();
+                    }
+                }, 5000);
+
+                cluster.on('message', (worker, message, handle) => {
+                    if(message.type === 'access') {
+                        console.log(message);
+                    } else {
+                        console.error(message);
+                    }
+                });
+            }
+        } else if (cluster.isWorker) {
             this.run(host, port);
         }
     };
