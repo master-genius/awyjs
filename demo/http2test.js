@@ -15,6 +15,8 @@ ant.get('/', async rr => {
 
 ant.post('/upload', async rr => {
 
+    console.log(rr.req.GetBody());
+
     var f = rr.req.GetFile('image');
     if (!f) {
         rr.res.Body = 'file not found';
@@ -28,6 +30,19 @@ ant.post('/upload', async rr => {
     }, err => {
         rr.res.Body = 'failed';
     });
+});
+
+ant.post('/pt', async rr => {
+    rr.res.Body = rr.req.GetBody();
+});
+
+ant.map(['GET','POST'], '/rs/:id', async rr => {
+    if (rr.req.method === 'GET') {
+        rr.res.Body = rr.req.RequestARGS;
+    } else {
+        console.log(rr.req.RequestARGS);
+        rr.res.Body = rr.req.GetBody();
+    }
 });
 
 ant.run('localhost', 8456);

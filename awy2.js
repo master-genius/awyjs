@@ -377,8 +377,10 @@ module.exports = function () {
         }
 
         if (route_key === null) {
-            res.statusCode = 404;
-            res.end('');
+            //res.statusCode = 404;
+            stream.respond({
+                ':status' : 404
+            }, {endStream : true});
             return ;
         }
         
