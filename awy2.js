@@ -537,7 +537,7 @@ module.exports = function () {
                 if (tmp.search("name=") > -1) {
                     var name = tmp.split("=")[1].trim();
                     name = name.substring(1, name.length-1);
-                    req.BodyParam[name] = Buffer(file_data, 'binary').toString('utf8');
+                    req.BodyParam[name] = Buffer.from(file_data, 'binary').toString('utf8');
                     break;
                 }
             }
@@ -623,9 +623,11 @@ module.exports = function () {
                     
                     stream.respond({
                         ':status' : 413
-                    }, {
-                        endStream : true
                     });
+                    stream.end(
+                        'Error: out of limit('+the.config.body_max_size+' Bytes)'
+                    );
+                    stream.close();
                 }
             });
         
@@ -633,6 +635,7 @@ module.exports = function () {
                 if (stream.closed) {
                     return ;
                 }
+
                 if (cluster.isWorker && the.config.log_type !== 'ignore') {
                     process.send({
                         type : 'access',

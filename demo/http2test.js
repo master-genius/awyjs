@@ -4,9 +4,11 @@ var ant = new awy2();
 
 ant.config.https_on = true;
 ant.config.https_options.cert = '../rsa/localhost-cert.pem';
-ant.config.https_options.key = '../rsa/localhost-privkey.pem'
+ant.config.https_options.key = '../rsa/localhost-privkey.pem';
 
 ant.config.parse_upload = true;
+
+ant.config.body_max_size = 600000;
 
 ant.get('/', async rr => {
     console.log(rr.headers);
@@ -14,8 +16,6 @@ ant.get('/', async rr => {
 });
 
 ant.post('/upload', async rr => {
-
-    console.log(rr.req.GetBody());
 
     var f = rr.req.GetFile('image');
     if (!f) {

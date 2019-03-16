@@ -390,7 +390,7 @@ module.exports = function () {
                 if (tmp.search("name=") > -1) {
                     var name = tmp.split("=")[1].trim();
                     name = name.substring(1, name.length-1);
-                    req.BodyParam[name] = file_data;
+                    req.BodyParam[name] = BUffer.from(file_data, 'binary').toString('utf8');
                     break;
                 }
             }
@@ -449,16 +449,35 @@ module.exports = function () {
         return hash.digest('hex') + '.' + the.parseExtName(filename);
     };
 
-    this.reqHandler = function (req, res) {
-        if (cluster.isWorker && the.config.log_type !== 'ignore') {
-            process.send({
+    this.sendReqLog = function(req, req_type = 'ok') {
+        var real_ip = req.socket.remoteAddress;
+        if (req.headers['x-real-ip']) {
+            real_ip = req.headers['x-real-ip'];
+        }
+        var msg_log = null;
+        if (req_type == 'error') {
+            msg_log = {
+                type : 'error',
+                time : (new Date()).toString(),
+                method : req.method,
+                url : req.url,
+                remote_addr : real_ip,
+                errmsg : err.message
+            };
+        } else {
+            msg_log = {
                 type : 'access',
                 time : (new Date()).toString(),
                 method : req.method,
                 url : req.url,
-                remote_addr : req.socket.remoteAddress
-            });
+                remote_addr : real_ip
+                
+            };
         }
+        process.send(msg_log);
+    }
+
+    this.reqHandler = function (req, res) {
 
         /*
             这两个函数因为和请求数据无关，被移出到上一层。
@@ -549,6 +568,9 @@ module.exports = function () {
         };
 
         if (req.method=='GET'){
+            if (cluster.isWorker && the.config.log_type !== 'ignore') {
+                the.sendReqLog(req);
+            }
             return the.execRequest(get_params.pathname, req, res);
         } else if (req.method == 'POST' || req.method == 'PUT' || req.method == 'DELETE') {
             
@@ -573,12 +595,19 @@ module.exports = function () {
                     }
                     return ;
                 }
+                if (cluster.isWorker && the.config.log_type !== 'ignore') {
+                    the.sendReqLog(req);
+                }
                 if (! req.IsUpload) {
 
                     if (req.headers['content-type'].indexOf('application/x-www-form-urlencoded') >= 0) {
-                        req.BodyParam = qs.parse(req.BodyRawData);
+                        req.BodyParam = qs.parse(
+                                Buffer.from(req.BodyRawData, 'binary').toString('utf8')
+                            );
                     } else {
-                        req.BodyParam = (new Buffer(req.BodyRawData, 'binary')).toString('utf8');
+                        req.BodyParam = Buffer
+                                        .from(req.BodyRawData, 'binary')
+                                        .toString('utf8');
                     }
                 }
 
@@ -588,14 +617,7 @@ module.exports = function () {
             req.on('error', (err) => {
                 req.BodyRawData = '';
                 if (cluster.isWorker && the.config.log_type !== 'ignore') {
-                    process.send({
-                        type : 'error',
-                        time : (new Date()).toString(),
-                        method : req.method,
-                        url : req.url,
-                        remote_addr : req.socket.remoteAddress,
-                        errmsg : err.message
-                    });
+                    the.sendReqLog(req, 'error');
                 }
                 return ;
             });

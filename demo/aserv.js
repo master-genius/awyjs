@@ -6,6 +6,7 @@ var as = new awy();
 
 as.config.parse_upload = true;
 as.config.pid_file = './awy.pid';
+as.config.log_type = 'stdio';
 
 /*
 as.add(async (rr, next) => {
@@ -45,7 +46,6 @@ as.get('/cookie/test', async rr => {
 
 
 as.get('/headers', async rr => {
-    console.log(rr.req.headers);
     rr.res.Body = rr.req.headers;
 });
 
