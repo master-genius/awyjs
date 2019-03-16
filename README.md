@@ -17,6 +17,10 @@ awy是一个NodeJS环境的Web服务端框架，很简单，也很小。基于as
 
 [awy核心API参考](https://awy.linuslinux.com/#api)
 
+#### !提醒
+
+awy-old.js是早期版本，不建议使用，awy-trash是将要删除的。awy2.js是支持HTTP/2协议的，目前还在测试中，并且不支持降级，只能是HTTP/2协议。
+
 
 #### 使用示例
 
