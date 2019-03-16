@@ -60,6 +60,7 @@ module.exports = function () {
      * 从HTTP/1.1更新到HTTP/2，做兼容处理，
      * 尽量保证不更改代码即可切换。
      * 这里使用空的request和response对象作为初始的请求和响应。
+     * request和response一定要使用new操作，否则会挂到
     */
     this.request = function () {
         
@@ -407,7 +408,6 @@ module.exports = function () {
             headers : headers
         });
     };
-    
 
     this.mid_chain = [
         async function(rr) {
@@ -578,6 +578,35 @@ module.exports = function () {
 
     };
 
+    this.sendReqLog = function(stream, headers, req_type = 'ok') {
+        var real_ip = stream.session.socket.remoteAddress;
+        if (headers['x-real-ip']) {
+            real_ip = headers['x-real-ip'];
+        }
+        var msg_log = null;
+        if (req_type == 'error') {
+            msg_log = {
+                type : 'error',
+                time : (new Date()).toString(),
+                method : headers[':method'],
+                url : headers[':authority'],
+                path : headers[':path'],
+                remote_addr : real_ip,
+                errmsg : err.message
+            };
+        } else {
+            msg_log = {
+                type : 'access',
+                time : (new Date()).toString(),
+                method : headers[':method'],
+                url : headers[':authority'],
+                path : headers[':path'],
+                remote_addr : real_ip
+                
+            };
+        }
+        process.send(msg_log);
+    };
     
 
     this.reqHandler = function (stream, headers) {
@@ -603,17 +632,21 @@ module.exports = function () {
 
         if (req.method=='GET'){
             if (cluster.isWorker && the.config.log_type !== 'ignore') {
-                process.send({
-                    type : 'access',
-                    time : (new Date()).toString(),
-                    method : headers[':method'],
-                    url : headers[':authority'],
-                    path : headers[':path'],
-                    remote_addr : stream.session.socket.remoteAddress
-                });
+                the.sendReqLog(stream, headers);
             }
             return the.execRequest(req.ORGPATH, req, res, stream, headers);
         } else if (req.method == 'POST' || req.method == 'PUT' || req.method == 'DELETE') {
+
+            if (parseInt(headers['content-length']) > the.config.body_max_size) {
+                stream.respond({
+                    ':status' : 413
+                });
+                stream.end(
+                    'Out of limit('+the.config.body_max_size+' Bytes)'
+                );
+                stream.close();
+                return ;
+            }
             
             stream.on('data',(data) => {
 
@@ -637,14 +670,7 @@ module.exports = function () {
                 }
 
                 if (cluster.isWorker && the.config.log_type !== 'ignore') {
-                    process.send({
-                        type : 'access',
-                        time : (new Date()).toString(),
-                        method : headers[':method'],
-                        url : headers[':authority'],
-                        path : headers[':path'],
-                        remote_addr : stream.session.socket.remoteAddress
-                    });
+                    the.sendReqLog(stream, headers);
                 }
 
                 if (! req.IsUpload) {
@@ -665,14 +691,7 @@ module.exports = function () {
             stream.on('error', (err) => {
                 req.BodyRawData = '';
                 if (cluster.isWorker && the.config.log_type !== 'ignore') {
-                    process.send({
-                        type : 'error',
-                        time : (new Date()).toString(),
-                        method : req.method,
-                        url : headers[':path'],
-                        remote_addr : stream.session.socket.remoteAddress,
-                        errmsg : err.message
-                    });
+                    the.sendReqLog(stream, headers, 'error');
                 }
                 return ;
             });
@@ -685,6 +704,7 @@ module.exports = function () {
                 endStream : true
             });
             stream.end('Method not allowed');
+            stream.close();
         }
 
     };

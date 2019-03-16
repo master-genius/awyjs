@@ -475,7 +475,7 @@ module.exports = function () {
             };
         }
         process.send(msg_log);
-    }
+    };
 
     this.reqHandler = function (req, res) {
 

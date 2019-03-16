@@ -7,8 +7,13 @@ ant.config.https_options.cert = '../rsa/localhost-cert.pem';
 ant.config.https_options.key = '../rsa/localhost-privkey.pem';
 
 ant.config.parse_upload = true;
-
 ant.config.body_max_size = 600000;
+ant.config.log_type = 'stdio';
+
+ant.add(async (rr, next) => {
+    console.log(process.pid);
+    await next(rr);
+});
 
 ant.get('/', async rr => {
     console.log(rr.headers);
@@ -45,5 +50,5 @@ ant.map(['GET','POST'], '/rs/:id', async rr => {
     }
 });
 
-ant.run('localhost', 8456);
+ant.ants('localhost', 8456);
 
