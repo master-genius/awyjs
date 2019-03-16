@@ -61,114 +61,111 @@ module.exports = function () {
      * 尽量保证不更改代码即可切换。
      * 这里使用空的request和response对象作为初始的请求和响应。
     */
-    this.request = new function () {
+    this.request = function () {
         
-        return function () {
-            var reqself = this;
+        var reqself = this;
 
-            this.method = '';
+        this.method = '';
 
-            this.headers = {};
+        this.headers = {};
 
-            this.ROUTEPATH = '/';
-            this.ORGPATH = '';
+        this.ROUTEPATH = '/';
+        this.ORGPATH = '';
 
-            this.RequestARGS = {};
+        this.RequestARGS = {};
 
-            this.QueryParam = {};
+        this.QueryParam = {};
 
-            this.BodyParam = {};
+        this.BodyParam = {};
 
-            this.BodyRawData = '';
+        this.BodyRawData = '';
 
-            this.IsUpload = false;
+        this.IsUpload = false;
 
-            this.UploadFiles = {};
+        this.UploadFiles = {};
 
-            this.GetBody = function() {
-                return reqself.BodyParam;
-            };
+        this.GetBody = function() {
+            return reqself.BodyParam;
+        };
 
-            this.GetRawBody = function() {
-                return reqself.BodyRawData;
-            };
+        this.GetRawBody = function() {
+            return reqself.BodyRawData;
+        };
 
-            this.GetQueryParam = function(name, def_val = null) {
-                if (reqself.QueryParam[name] !== undefined) {
-                    return reqself.QueryParam[name];
-                }
-                return def_val;
-            };
+        this.GetQueryParam = function(name, def_val = null) {
+            if (reqself.QueryParam[name] !== undefined) {
+                return reqself.QueryParam[name];
+            }
+            return def_val;
+        };
 
-            this.GetBodyParam = function(name, def_val = null) {
-                if (reqself.BodyParam[name] !== undefined) {
-                    return reqself.BodyParam[name];
-                }
-                return def_val;
-            };
+        this.GetBodyParam = function(name, def_val = null) {
+            if (reqself.BodyParam[name] !== undefined) {
+                return reqself.BodyParam[name];
+            }
+            return def_val;
+        };
 
-            //处理请求时动态绑定真实的处理函数。
-            this.RequestCall = null;
+        //处理请求时动态绑定真实的处理函数。
+        this.RequestCall = null;
 
-            this.GetFile = function(name, ind = 0) {
-                if (reqself.UploadFiles[name] === undefined) {
-                    return null;
-                }
-                if (ind < 0 || ind >= reqself.UploadFiles[name].length) {
-                    return null;
-                }
-                return reqself.UploadFiles[name][ind];
-            };
+        this.GetFile = function(name, ind = 0) {
+            if (reqself.UploadFiles[name] === undefined) {
+                return null;
+            }
+            if (ind < 0 || ind >= reqself.UploadFiles[name].length) {
+                return null;
+            }
+            return reqself.UploadFiles[name][ind];
+        };
 
-            /*
-                options:
-                    path   
-                    filename
-            */
-            this.MoveFile = function (upf, options) {
-                if (!options.filename) {
-                    options.filename = reqself.GenFileName(upf.filename);
-                }
+        /*
+            options:
+                path   
+                filename
+        */
+        this.MoveFile = function (upf, options) {
+            if (!options.filename) {
+                options.filename = reqself.GenFileName(upf.filename);
+            }
 
-                var target = options.path + '/' + options.filename;
-                
-                return new Promise((rv, rj) => {
-                    fs.writeFile(target, upf.data, {encoding : 'binary'}, err => {
-                        if (err) {
-                            rj(err);
-                        } else {
-                            rv({
-                                filename : options.filename,
-                                target : target
-                            });
-                        }
-                    });
+            var target = options.path + '/' + options.filename;
+            
+            return new Promise((rv, rj) => {
+                fs.writeFile(target, upf.data, {encoding : 'binary'}, err => {
+                    if (err) {
+                        rj(err);
+                    } else {
+                        rv({
+                            filename : options.filename,
+                            target : target
+                        });
+                    }
                 });
-            };
+            });
+        };
 
-            this.ParseExtName = function (filename) {
-                if (filename.search(".") < 0) {
-                    return '';
-                }
-                name_slice = filename.split('.');
-                if (name_slice.length <= 0) {
-                    return '';
-                }
-                return name_slice[name_slice.length-1];
-            };
-        
-            this.GenFileName = function(filename, pre_str='') {
-                var org_name = `${pre_str}${Date.now()}`;
-                var hash = crypto.createHash('sha1');
-                hash.update(org_name);
-                return hash.digest('hex') + '.' + reqself.ParseExtName(filename);
-            };
+        this.ParseExtName = function (filename) {
+            if (filename.search(".") < 0) {
+                return '';
+            }
+            name_slice = filename.split('.');
+            if (name_slice.length <= 0) {
+                return '';
+            }
+            return name_slice[name_slice.length-1];
+        };
+    
+        this.GenFileName = function(filename, pre_str='') {
+            var org_name = `${pre_str}${Date.now()}`;
+            var hash = crypto.createHash('sha1');
+            hash.update(org_name);
+            return hash.digest('hex') + '.' + reqself.ParseExtName(filename);
         };
 
     };
 
     this.response = function () {
-
         var rself = this;
 
         this.Body = '';
@@ -199,8 +196,7 @@ module.exports = function () {
             } else {
                 rself.Body = val;
             }
-        }
-
+        };
 
     };
 
@@ -541,7 +537,7 @@ module.exports = function () {
                 if (tmp.search("name=") > -1) {
                     var name = tmp.split("=")[1].trim();
                     name = name.substring(1, name.length-1);
-                    req.BodyParam[name] = file_data;
+                    req.BodyParam[name] = Buffer(file_data, 'binary').toString('utf8');
                     break;
                 }
             }
@@ -650,9 +646,13 @@ module.exports = function () {
 
                 if (! req.IsUpload) {
                     if (req.headers['content-type'].indexOf('application/x-www-form-urlencoded') >= 0) {
-                        req.BodyParam = qs.parse(req.BodyRawData);
+                        req.BodyParam = qs.parse(
+                                Buffer.from(req.BodyRawData,'binary').toString('utf8')
+                            );
                     } else {
-                        req.BodyParam = (new Buffer(req.BodyRawData, 'binary')).toString('utf8');
+                        req.BodyParam = Buffer
+                                        .from(req.BodyRawData, 'binary')
+                                        .toString('utf8');
                     }
                 }
 
