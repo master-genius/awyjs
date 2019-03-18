@@ -600,7 +600,9 @@ module.exports = function () {
                 }
                 if (! req.IsUpload) {
 
-                    if (req.headers['content-type'].indexOf('application/x-www-form-urlencoded') >= 0) {
+                    if (req.headers['content-type'] && 
+                        req.headers['content-type'].indexOf('application/x-www-form-urlencoded') >= 0
+                    ) {
                         req.BodyParam = qs.parse(
                                 Buffer.from(req.BodyRawData, 'binary').toString('utf8')
                             );
