@@ -16,8 +16,8 @@ as.add(async (rr, next) => {
 }, ['/', '/test']);
 */
 
-as.add(awy_sess.mid);
-as.add(awy_cookie);
+//as.add(awy_sess.mid);
+//as.add(awy_cookie);
 
 as.get('/', async rr => {
     rr.res.Body = 'success';
@@ -72,6 +72,11 @@ as.map(['POST', 'PUT'], '/upload', async rr => {
     rr.res.Body = 'ok';
 });
 
+as.get('/exception', async rr => {
+    throw new Error('just for test');
+});
+
 
 //default 127.0.0.1:2020
 as.ants();
+

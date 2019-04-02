@@ -163,7 +163,7 @@ module.exports = function () {
             if (rt.isStar) {
                 for(var i=0; i<rt.routeArr.length; i++) {
                     if (rt.routeArr[i] == '*') {
-                        args.starPath = path_split.slice(i+1).join('/');
+                        args.starPath = path_split.slice(i).join('/');
                     } else if(rt.routeArr[i] !== path_split[i]) {
                         next = true;
                         break;
@@ -311,9 +311,14 @@ module.exports = function () {
         this.mid_chain.push(realMidCall);
     };
     
-    this.runMiddleware = function (rr) {
-        var last = the.mid_chain.length - 1;
-        return the.mid_chain[last](rr, the.mid_chain[last-1]);
+    this.runMiddleware = async function (rr) {
+        try {
+            var last = the.mid_chain.length - 1;
+            await the.mid_chain[last](rr, the.mid_chain[last-1]);
+        } catch (err) {
+            rr.res.statusCode = 500;
+            rr.res.end();
+        }
     };
     
     /*
@@ -390,7 +395,7 @@ module.exports = function () {
                 if (tmp.search("name=") > -1) {
                     var name = tmp.split("=")[1].trim();
                     name = name.substring(1, name.length-1);
-                    req.BodyParam[name] = BUffer.from(file_data, 'binary').toString('utf8');
+                    req.BodyParam[name] = Buffer.from(file_data, 'binary').toString('utf8');
                     break;
                 }
             }
@@ -642,7 +647,7 @@ module.exports = function () {
     this.addFinalResponse = function() {
         var fr = async function(rr, next) {
             if (!rr.res.getHeader('Content-Type')) {
-                rr.res.setHeader('Content-Type', 'text/plain,text/html;charset=utf8');
+                rr.res.setHeader('Content-Type', 'text/html;charset=utf8');
             }
             await next(rr);
             
