@@ -47,6 +47,7 @@ module.exports = new function() {
 
     this.mimeType = function(filename) {
         var extname = this.extName(filename);
+        extname = extname.toLowerCase();
         if (extname !== '' && this.mime_map[extname] !== undefined) {
             return this.mime_map[extname];
         }
@@ -150,16 +151,31 @@ module.exports = new function() {
         }
     */
 
-    this.post = function(url, options) {
+    this.post = function(url, options = {}) {
+        options.method = 'POST';
+        return the.request(url, options);
+    };
+
+    this.put = function(url, options = {}) {
+        options.method = 'PUT';
+        return the.request(url, options);
+    };
+
+    this.delete = function(url, options = {}) {
+        options.method = 'DELETE';
+        return the.request(url, options);
+    };
+
+    this.request = function(url, options) {
         if (options.encoding === undefined) {
             options.encoding = 'utf8';
         }
 
         var opts = this.parseUrl(url);
         var h = (opts.protocol === 'https:') ? https : http;
-        opts.method = 'POST';
+        opts.method = options.method;
         opts.headers = {
-            'Content-Type'  : 'application/x-www-form-urlencoded',
+            'content-type'  : 'application/x-www-form-urlencoded',
         };
 
         if (options.headers !== undefined) {
@@ -168,17 +184,18 @@ module.exports = new function() {
             }
         }
         var post_data = '';
-        if (opts.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
-            post_data = qs.stringify(options.data);
-        } else {
-            if (typeof options.data === 'object') {
-                post_data = JSON.stringify(options.data);
+        if (options.data) {
+            if (opts.headers['content-type'] === 'application/x-www-form-urlencoded') {
+                post_data = qs.stringify(options.data);
             } else {
-                post_data = options.data;
+                if (typeof options.data === 'object') {
+                    post_data = JSON.stringify(options.data);
+                } else {
+                    post_data = options.data;
+                }
             }
+            opts.headers['content-length'] = Buffer.byteLength(post_data);
         }
-        
-        opts.headers['Content-Length'] = Buffer.byteLength(post_data);
         
         return new Promise ((rv, rj) => {
             var r = h.request(opts, (res) => {
@@ -206,7 +223,9 @@ module.exports = new function() {
                 rj(e);
             });
 
-            r.write(post_data);
+            if (post_data) {
+                r.write(post_data);
+            }
             r.end();
         });
     };
@@ -224,7 +243,7 @@ module.exports = new function() {
 
         opts.method = 'POST';
         opts.headers = {
-            'Content-Type'  : 'multipart/form-data; '
+            'content-type'  : 'multipart/form-data; '
         };
        
         return new Promise((rv, rj) => {
@@ -278,8 +297,8 @@ module.exports = new function() {
             var header_data = `Content-Disposition: form-data; name=${'"'}${r.name}${'"'}; filename=${'"'}${r.filename}${'"'}\r\nContent-Type: ${r.mime_type}`;
             var payload = `\r\n--${bdy}\r\n${header_data}\r\n\r\n`;
             var end_data = `\r\n--${bdy}--\r\n`;
-            r.options.headers['Content-Type'] += `boundary=${bdy}`;
-            r.options.headers['Content-Length'] = Buffer.byteLength(payload) + Buffer.byteLength(end_data) + fs.statSync(r.pathname).size + Buffer.byteLength(formData);
+            r.options.headers['content-type'] += `boundary=${bdy}`;
+            r.options.headers['content-length'] = Buffer.byteLength(payload) + Buffer.byteLength(end_data) + fs.statSync(r.pathname).size + Buffer.byteLength(formData);
 
             return new Promise((rv, rj) => {
                 var http_request = r.httpr.request(r.options, (res) => {
@@ -348,7 +367,7 @@ module.exports = new function() {
         opts.method = options.method;
         if (opts.method === 'POST') {
             opts.headers = {
-                'Content-Type'  : 'application/x-www-form-urlencoded',
+                'content-type'  : 'application/x-www-form-urlencoded',
             };
         }
 
@@ -360,7 +379,7 @@ module.exports = new function() {
 
         var post_data = '';
         if (opts.method === 'POST') {
-            if (opts.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
+            if (opts.headers['content-type'] === 'application/x-www-form-urlencoded') {
                 post_data = qs.stringify(options.data);
             } else {
                 if (typeof options.data === 'object') {
@@ -370,7 +389,7 @@ module.exports = new function() {
                 }
             }
             
-            opts.headers['Content-Length'] = Buffer.byteLength(post_data);
+            opts.headers['content-length'] = Buffer.byteLength(post_data);
         }
         
         return new Promise ((rv, rj) => {
