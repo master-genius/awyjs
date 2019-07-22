@@ -37,6 +37,12 @@ module.exports = function () {
         */
         log_type        : 'ignore',
 
+        //允许跨域的域名，支持 * 或 域名 或 域名 数组
+        cors : null,
+
+        //自动处理OPTIONS请求，用于处理所有路由的情况
+        auto_options : false,
+
         /*
             mem, path
             暂时只是实现了mem模式，文件会被放在内存里。
@@ -57,7 +63,13 @@ module.exports = function () {
         },
     };
 
-    this.ApiTable = {};
+    this.ApiTable = {
+        'GET'   : {},
+        'POST'  : {},
+        'PUT'   : {},
+        'DELETE': {},
+        'OPTIONS': {}
+    };
     
     this.get = function(api_path, callback) {
         this.addPath(api_path, 'GET', callback);
@@ -73,6 +85,10 @@ module.exports = function () {
 
     this.delete = function(api_path, callback) {
         this.addPath(api_path, 'DELETE', callback);
+    };
+
+    this.options = function(api_path, callback) {
+        this.addPath(api_path, 'OPTIONS', callback);
     };
 
     this.any = function(api_path, callback) {
@@ -93,44 +109,49 @@ module.exports = function () {
         并不进行参数解析。
     */
     this.addPath = function(api_path, method, callback) {
-
-        if (this.ApiTable[api_path] === undefined) {
-            this.ApiTable[api_path] = {
+        var add_req = {
                 isArgs:  false,
                 isStar:  false,
                 routeArr: [],
-                ReqCall: {},
+                ReqCall: callback,
             };
-            if (api_path.indexOf(':') >= 0) {
-                this.ApiTable[api_path].isArgs = true;
-            }
-            if (api_path.indexOf('*') >= 0) {
-                this.ApiTable[api_path].isStar = true;
-            }
-
-            if(this.ApiTable[api_path].isStar && this.ApiTable[api_path].isArgs) {
-                var errinfo = `: * can not in two places at once ->  ${api_path}`;
-                throw errinfo;
-            }
-
-            this.ApiTable[api_path].routeArr = api_path.split('/').filter(p => p.length > 0);
-        }
 
         switch (method) {
             case 'GET':
             case 'POST':
             case 'PUT':
             case 'DELETE':
-                this.ApiTable[api_path].ReqCall[method] = callback;
+            case 'OPTIONS':
+                this.ApiTable[method][api_path] = add_req;
+                break;
+            default:
                 return ;
-            default:;
         }
+        if (api_path.indexOf(':') >= 0) {
+            this.ApiTable[method][api_path].isArgs = true;
+        }
+        if (api_path.indexOf('*') >= 0) {
+            this.ApiTable[method][api_path].isStar = true;
+        }
+
+        if(this.ApiTable[method][api_path].isStar 
+            && this.ApiTable[method][api_path].isArgs
+        ) {
+            var errinfo = `: * can not in two places at once ->  ${api_path}`;
+            throw new Error(errinfo);
+        }
+
+        this.ApiTable[method][api_path].routeArr = api_path.split('/').filter(p => p.length > 0);
+
     };
 
     /*
         如果路径超过2000字节长度，并且分割数组太多，length超过8则不处理。
     */
-    this.findPath = function(path) {
+    this.findPath = function(path, method) {
+        if (!the.ApiTable[method]) {
+            return null;
+        }
         if (path.length > 2000) {
             return null;
         }
@@ -143,8 +164,8 @@ module.exports = function () {
         var next = 0;
         var args = {};
         var rt = null;
-        for (var k in the.ApiTable) {
-            rt = the.ApiTable[k];
+        for (var k in the.ApiTable[method]) {
+            rt = the.ApiTable[method][k];
             if (rt.isArgs === false && rt.isStar === false) {
                 continue;
             }
@@ -152,7 +173,7 @@ module.exports = function () {
             if (
               (rt.routeArr.length !== path_split.length && rt.isStar === false)
               ||
-              (rt.routeArr.length > path_split.length)
+              (rt.isStar && rt.routeArr.length > path_split.length+1)
             ) {
                 continue;
             }
@@ -195,17 +216,23 @@ module.exports = function () {
     this.execRequest = function (path, req, res) {
         var pk = null;
         var route_key = null;
+
+        if (!the.ApiTable[req.method]) {
+            res.statusCode = 405;
+            res.end();
+            return;
+        }
         /*
             路由处理会自动处理末尾的/，
             /content/123和/content/123/是同一个请求
         */
-        if (the.ApiTable[path] === undefined) {
+        if (the.ApiTable[req.method][path] === undefined) {
             if (path[path.length-1] === '/') {
                 var lpath = path.substring(0, path.length-1);
-                if (the.ApiTable[lpath] !== undefined) {
+                if (the.ApiTable[req.method][lpath] !== undefined) {
                     route_key = lpath;
                 }
-            } else if(the.ApiTable[`${path}/`] !== undefined) {
+            } else if(the.ApiTable[req.method][`${path}/`] !== undefined) {
                 route_key = `${path}/`;
             }
 
@@ -222,9 +249,9 @@ module.exports = function () {
         }
         
         if (route_key === null) {
-            pk = the.findPath(path);
+            pk = the.findPath(path, req.method);
             if (pk !== null) {
-                req.RequestARGS = pk.args;
+                req.Args = pk.args;
                 route_key = pk.key;
             }
         }
@@ -237,15 +264,10 @@ module.exports = function () {
         
         req.ROUTEPATH = route_key;
 
-        var R = the.ApiTable[route_key].ReqCall;
-        req.RequestCall = R[req.method];
-
-        if (R[req.method] === undefined
-           || typeof R[req.method] !== 'function'
-        ) {
-            res.end(`Error: method not be allowed : ${req.method}`);
-            return ;
-        }
+        var R = the.ApiTable[req.method][route_key];
+        req.RequestCall = R.ReqCall;
+        //用于分组检测
+        req.RequestGroup = '/' + R.routeArr[0];
 
         if (
             (req.method === 'POST' || req.method === 'PUT' )
@@ -259,6 +281,57 @@ module.exports = function () {
             req : req,
             res : res
         });
+    };
+
+    this.group = function(grp) {
+        var gt = new function() {
+            var t = this;
+
+            t.group_name = grp;
+
+            t.add_group_api = function(apath) {
+                if (!the.api_group_table[t.group_name]) {
+                    the.api_group_table[t.group_name] = {};
+                }
+                the.api_group_table[t.group_name][t.group_name+apath] = apath;
+            };
+
+            t.get = function(apath, callback) {
+                t.add_group_api(apath);
+                the.get(t.group_name+apath, callback);
+            };
+
+            t.post = function(apath, callback) {
+                t.add_group_api(apath);
+                the.post(t.group_name+apath, callback);
+            };
+            
+            t.put = function(apath, callback) {
+                t.add_group_api(apath);
+                the.put(t.group_name+apath, callback);
+            };
+
+            t.delete = function(apath, callback) {
+                t.add_group_api(apath);
+                the.delete(t.group_name+apath, callback);
+            };
+            
+            t.options = function(apath, callback) {
+                t.add_group_api(apath);
+                the.options(t.group_name+apath, callback);
+            };
+
+            t.any = function(apath, callback) {
+                t.add_group_api(apath);
+                the.any(t.group_name+apath, callback);
+            };
+
+            t.add = function(midcall, preg = null) {
+                the.add(midcall, preg, t.group_name);
+            };
+        };
+
+        return gt;
     };
     
 
@@ -276,11 +349,23 @@ module.exports = function () {
             return rr;
         }
     ];
+
+    /*
+        支持路由分组的解决方案（不改变已有代码即可使用）：
+    */
+
+    this.mid_group = {
+        '*global*' : [this.mid_chain[0], this.mid_chain[1]]
+    };
+
+    //记录api的分组，只有在分组内的路径才会去处理，
+    //这是为了避免不是通过分组添加但是仍然使用和分组相同前缀的路由也被当作分组内路由处理。
+    this.api_group_table = {};
     
     /*
-        添加中间件，第二个参数允许设置针对哪些路由起作用
+        添加中间件，第三个参数表示分组。
     */
-    this.add = function(midcall, preg = null) {
+    this.add = function(midcall, preg = null, group = null) {
         /*
             直接跳转下层中间件，根据匹配规则如果不匹配则执行此函数。
         */
@@ -289,33 +374,63 @@ module.exports = function () {
             return rr;
         };
 
-        var last = this.mid_chain.length - 1;
-        var realMidCall = async function(rr) {
+        var genRealCall = function(prev_mid, group) {
+            return async function(rr) {
 
-            if (preg) {
-                if (
-                    (typeof preg === 'string' && preg !== rr.req.ROUTEPATH)
-                    ||
-                    (preg instanceof RegExp && !preg.test(rr.req.ROUTEPATH))
-                    ||
-                    (preg instanceof Array && preg.indexOf(rr.req.ROUTEPATH) < 0)
-                ) {
-                    await jump(rr, the.mid_chain[last]);
-                    return rr;
+                if (preg) {
+                    if (
+                        (typeof preg === 'string' && preg !== rr.req.ROUTEPATH)
+                        ||
+                        (preg instanceof RegExp && !preg.test(rr.req.ROUTEPATH))
+                        ||
+                        (preg instanceof Array && preg.indexOf(rr.req.ROUTEPATH) < 0)
+                    ) {
+                        await jump(rr, the.mid_group[group][prev_mid]);
+                        return rr;
+                    }
                 }
-            }
-            await midcall(rr, the.mid_chain[last]);
-            return rr;
+                await midcall(rr, the.mid_group[group][prev_mid]);
+                return rr;
+            };
+        
         };
 
-        this.mid_chain.push(realMidCall);
+        var last = 0;
+
+        if (group) {
+            
+            if (!this.mid_group[group]) {
+                this.mid_group[group] = [this.mid_chain[0], this.mid_chain[1]];
+            }
+
+            last = this.mid_group[group].length - 1;
+            this.mid_group[group].push(genRealCall(last, group));
+        } else {
+            //this.mid_group['*global*'].push(last+1);
+            //全局添加中间件
+            for(var k in this.mid_group) {
+                last = this.mid_group[k].length - 1;
+                this.mid_group[k].push(genRealCall(last, k));
+            }
+        }
+
     };
     
     this.runMiddleware = async function (rr) {
         try {
-            var last = the.mid_chain.length - 1;
-            await the.mid_chain[last](rr, the.mid_chain[last-1]);
+            //var last = the.mid_chain.length - 1;
+            var group = '*global*';
+            if (the.mid_group[rr.req.RequestGroup] 
+                && the.api_group_table[rr.req.RequestGroup][rr.req.ROUTEPATH]
+            ) {
+                group = rr.req.RequestGroup;
+            }
+
+            var last = the.mid_group[group].length-1;
+            await the.mid_group[group][last](rr, the.mid_group[group][last-1]);
+
         } catch (err) {
+            console.log(err);
             rr.res.statusCode = 500;
             rr.res.end();
         }
@@ -344,27 +459,27 @@ module.exports = function () {
         end_bdy = bdy + '--';
 
         //file end flag
-        var end_index = req.BodyRawData.search(end_bdy);
+        var end_index = req.RawBody.search(end_bdy);
         var bdy_crlf = `${bdy}\r\n`;
 
         var file_end = 0;
         var data_buf = '';
 
         while(1) {
-            file_end = req.BodyRawData.substring(bdy_crlf.length).search(bdy);
+            file_end = req.RawBody.substring(bdy_crlf.length).search(bdy);
             if ((file_end + bdy_crlf.length) >= end_index) {
-                data_buf = req.BodyRawData.substring(bdy_crlf.length, end_index);
+                data_buf = req.RawBody.substring(bdy_crlf.length, end_index);
                 this.parseSingleFile(data_buf, req);
                 data_buf = '';
                 break;
             }
 
-            data_buf = req.BodyRawData.substring(bdy_crlf.length, file_end+bdy_crlf.length);
+            data_buf = req.RawBody.substring(bdy_crlf.length, file_end+bdy_crlf.length);
             this.parseSingleFile(data_buf, req);
             data_buf = '';
 
-            req.BodyRawData = req.BodyRawData.substring(file_end+bdy_crlf.length);
-            end_index = req.BodyRawData.search(end_bdy);
+            req.RawBody = req.RawBody.substring(file_end+bdy_crlf.length);
+            end_index = req.RawBody.search(end_bdy);
             if (end_index < 0) {
                 break;
             }
@@ -543,36 +658,46 @@ module.exports = function () {
             get_params.pathname = '/';
         }
         
-        req.QueryParam = get_params.query;
+        req.Param = get_params.query;
         req.ORGPATH = get_params.pathname;
         req.ROUTEPATH = '';
         req.BodyParam = {};
         req.UploadFiles = {};
-        req.BodyRawData = '';
+        req.RawBody = '';
 
-        req.GetQueryParam = function(key, defval = null) {
-            if (req.QueryParam && req.QueryParam[key]) {
-                return req.QueryParam[key];
+        /* req.GetParam = function(key, defval = null) {
+            if (req.Param && req.Param[key]) {
+                return req.Param[key];
             }
-            return null;
+            return defval;
         };
 
-        req.GetBodyParam = function(key, defval) {
+        req.GetBodyParam = function(key, defval = null) {
             if (req.BodyParam && req.BodyParam[key]) {
                 return req.BodyParam[key];
             }
-            return null;
-        };
+            return defval;
+        }; */
 
-        req.GetRawBody = function() {
-            return req.BodyRawData;
-        };
+        /*
+            跨域资源共享标准新增了一组 HTTP 首部字段，允许服务器声明哪些源站通过浏览器有权限访问哪些资源。
+            并且规范要求，对那些可能会对服务器资源产生改变的请求方法，需要先发送OPTIONS请求获取是否允许跨域
+            以及允许的方法。
+        */
 
-        req.GetBody = function () {
-            return req.BodyParam;
-        };
-
-        if (req.method=='GET'){
+        if (req.method == 'OPTIONS') {
+            res.setHeader('Access-control-allow-methods', ['GET','POST','PUT','DELETE', 'OPTIONS']);
+            if (the.config.cors) {
+                res.setHeader('Access-control-allow-origin', the.config.cors);
+            }
+            if (the.config.auto_options) {
+                res.statusCode = 200;
+                res.end();
+            } else {
+                return the.execRequest(get_params.pathname, req, res);
+            }
+        }
+        else if (req.method=='GET'){
             if (cluster.isWorker && the.config.log_type !== 'ignore') {
                 the.sendReqLog(req);
             }
@@ -580,9 +705,9 @@ module.exports = function () {
         } else if (req.method == 'POST' || req.method == 'PUT' || req.method == 'DELETE') {
             
             req.on('data',(data) => {
-                req.BodyRawData += data.toString('binary');
-                if (req.BodyRawData.length > the.config.body_max_size) {
-                    req.BodyRawData = '';
+                req.RawBody += data.toString('binary');
+                if (req.RawBody.length > the.config.body_max_size) {
+                    req.RawBody = '';
                     res.statusCode = 413;
                     res.end(
                         'Request data too large, out of limit:'
@@ -609,11 +734,11 @@ module.exports = function () {
                         req.headers['content-type'].indexOf('application/x-www-form-urlencoded') >= 0
                     ) {
                         req.BodyParam = qs.parse(
-                                Buffer.from(req.BodyRawData, 'binary').toString('utf8')
+                                Buffer.from(req.RawBody, 'binary').toString('utf8')
                             );
                     } else {
                         req.BodyParam = Buffer
-                                        .from(req.BodyRawData, 'binary')
+                                        .from(req.RawBody, 'binary')
                                         .toString('utf8');
                     }
                 }
@@ -622,7 +747,7 @@ module.exports = function () {
             });
             
             req.on('error', (err) => {
-                req.BodyRawData = '';
+                req.RawBody = '';
                 if (cluster.isWorker && the.config.log_type !== 'ignore') {
                     the.sendReqLog(req, 'error');
                 }
@@ -646,8 +771,8 @@ module.exports = function () {
     */
     this.addFinalResponse = function() {
         var fr = async function(rr, next) {
-            if (!rr.res.getHeader('Content-Type')) {
-                rr.res.setHeader('Content-Type', 'text/html;charset=utf8');
+            if (!rr.res.getHeader('content-type')) {
+                rr.res.setHeader('content-type', 'text/html;charset=utf8');
             }
             await next(rr);
             
@@ -666,7 +791,7 @@ module.exports = function () {
         the.add(fr);
     };
 
-    this.run = function(host = 'localhost', port = 2020) {
+    this.run = function(host = 'localhost', port = 9876) {
         //添加最终的中间件
         this.addFinalResponse();
 
@@ -698,7 +823,7 @@ module.exports = function () {
         这个函数是可以用于运维部署，此函数默认会根据CPU核数创建对应的子进程处理请求。
         子进程会调用run函数。
     */
-    this.ants = function(host='127.0.0.1', port=2020, num = 0) {
+    this.ants = function(host='127.0.0.1', port=9876, num = 0) {
         if (process.argv.indexOf('--daemon') > 0) {
 
         } else if (the.config.daemon) {

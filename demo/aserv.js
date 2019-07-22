@@ -1,4 +1,4 @@
-const awy = require('../awy.js');
+const awy = require('../awyg.js');
 const awy_cookie = require('../middleware/awy-cookie.js');
 const awy_sess = require('../middleware/awy-session2.js');
 
@@ -54,21 +54,21 @@ as.get('/test', async rr => {
 });
 
 as.post('/test', async rr => {
-    rr.res.Body += 'This is test page for POST : ' + rr.req.GetRawBody();
+    rr.res.Body += 'This is test page for POST : ' + rr.req.RawBody;
 });
 
 
 as.get('/test/:id/:name', async rr => {
-    rr.res.Body += 'This is test page with args' + JSON.stringify(rr.req.RequestARGS);
+    rr.res.Body += 'This is test page with args' + JSON.stringify(rr.req.Args);
 });
 
 as.post('/postdata', async rr => {
-    rr.res.Body = rr.req.GetBody();
+    rr.res.Body = rr.req.BodyParam;
 });
 
 as.map(['POST', 'PUT'], '/upload', async rr => {
     console.log(rr.req.GetFile('file'));
-    console.log(rr.req.GetRawBody());
+    console.log(rr.req.RawBody);
     rr.res.Body = 'ok';
 });
 

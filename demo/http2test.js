@@ -7,8 +7,10 @@ ant.config.https_options.cert = '../rsa/localhost-cert.pem';
 ant.config.https_options.key = '../rsa/localhost-privkey.pem';
 
 ant.config.parse_upload = true;
-ant.config.body_max_size = 600000;
+ant.config.body_max_size = 6000000;
 ant.config.log_type = 'stdio';
+ant.config.auto_options = true;
+ant.config.cors = '*';
 
 ant.add(async (rr, next) => {
     console.log(process.pid);
@@ -43,12 +45,11 @@ ant.post('/pt', async rr => {
 
 ant.map(['GET','POST'], '/rs/:id', async rr => {
     if (rr.req.method === 'GET') {
-        rr.res.Body = rr.req.RequestARGS;
+        rr.res.Body = rr.req.Args;
     } else {
-        console.log(rr.req.RequestARGS);
+        console.log(rr.req.Args);
         rr.res.Body = rr.req.GetBody();
     }
 });
 
-ant.ants('localhost', 8456);
-
+ant.run('localhost', 2020);

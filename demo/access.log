@@ -453,3 +453,18 @@
   method: [32m'GET'[39m,
   url: [32m'/test/sdf/123weqw'[39m,
   remote_addr: [32m'127.0.0.1'[39m }
+{ type: [32m'access'[39m,
+  time: [32m'Mon Jul 22 2019 14:53:08 GMT+0800 (GMT+08:00)'[39m,
+  method: [32m'GET'[39m,
+  url: [32m'/'[39m,
+  remote_addr: [32m'127.0.0.1'[39m }
+{ type: [32m'access'[39m,
+  time: [32m'Mon Jul 22 2019 14:53:10 GMT+0800 (GMT+08:00)'[39m,
+  method: [32m'GET'[39m,
+  url: [32m'/'[39m,
+  remote_addr: [32m'127.0.0.1'[39m }
+{ type: [32m'access'[39m,
+  time: [32m'Mon Jul 22 2019 14:53:32 GMT+0800 (GMT+08:00)'[39m,
+  method: [32m'GET'[39m,
+  url: [32m'/headers'[39m,
+  remote_addr: [32m'127.0.0.1'[39m }

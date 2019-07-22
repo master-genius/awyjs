@@ -16,7 +16,7 @@ function moveUploadFile(uf) {
 
 //针对/upload路由的中间件，需要URL携带参数utoken=I-like-awy才可以请求成功。
 aserv.add(async (rr, next) => {
-    if (rr.req.GetQueryParam('utoken') === 'I-like-awy') {
+    if (rr.req.GetParam('utoken') === 'I-like-awy') {
         await next(rr);
     } else {
         rr.res.Body = 'You need to say: I like awy\n';

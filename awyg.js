@@ -1,6 +1,7 @@
 const fs = require('fs');
 const qs = require('querystring');
-const http2 = require('http2');
+const http = require('http');
+const https = require('https');
 const url = require('url');
 const crypto = require('crypto');
 const cluster = require('cluster');
@@ -17,8 +18,6 @@ module.exports = function () {
 
         //开启守护进程，守护进程用于上线部署，要使用ants接口，run接口不支持
         daemon          : false,
-
-        cors : null,
 
         /*
             开启守护进程模式后，如果设置路径不为空字符串，
@@ -56,144 +55,6 @@ module.exports = function () {
             key     : '',
             cert    : ''
         },
-    };
-
-    /**
-     * 从HTTP/1.1更新到HTTP/2，做兼容处理，
-     * 尽量保证不更改代码即可切换。
-     * 这里使用空的request和response对象作为初始的请求和响应。
-     * request和response一定要使用new操作，否则会挂到
-    */
-    this.request = function () {
-        return new function() {
-            var reqself = this;
-
-            this.method = '';
-
-            this.headers = {};
-
-            this.ROUTEPATH = '/';
-            this.ORGPATH = '';
-
-            this.Args = {};
-
-            this.Param = {};
-
-            this.BodyParam = {};
-
-            this.RawBody = '';
-
-            this.IsUpload = false;
-
-            this.UploadFiles = {};
-
-            /* this.GetParam = function(name, def_val = null) {
-                if (reqself.QueryParam[name] !== undefined) {
-                    return reqself.QueryParam[name];
-                }
-                return def_val;
-            };
-
-            this.GetBodyParam = function(name, def_val = null) {
-                if (reqself.BodyParam[name] !== undefined) {
-                    return reqself.BodyParam[name];
-                }
-                return def_val;
-            }; */
-
-            //处理请求时动态绑定真实的处理函数。
-            this.RequestCall = null;
-
-            this.GetFile = function(name, ind = 0) {
-                if (reqself.UploadFiles[name] === undefined) {
-                    return null;
-                }
-                if (ind < 0 || ind >= reqself.UploadFiles[name].length) {
-                    return null;
-                }
-                return reqself.UploadFiles[name][ind];
-            };
-
-            /*
-                options:
-                    path   
-                    filename
-            */
-            this.MoveFile = function (upf, options) {
-                if (!options.filename) {
-                    options.filename = reqself.GenFileName(upf.filename);
-                }
-
-                var target = options.path + '/' + options.filename;
-                
-                return new Promise((rv, rj) => {
-                    fs.writeFile(target, upf.data, {encoding : 'binary'}, err => {
-                        if (err) {
-                            rj(err);
-                        } else {
-                            rv({
-                                filename : options.filename,
-                                target : target
-                            });
-                        }
-                    });
-                });
-            };
-
-            this.ParseExtName = function (filename) {
-                if (filename.search(".") < 0) {
-                    return '';
-                }
-                name_slice = filename.split('.');
-                if (name_slice.length <= 0) {
-                    return '';
-                }
-                return name_slice[name_slice.length-1];
-            };
-        
-            this.GenFileName = function(filename, pre_str='') {
-                var org_name = `${pre_str}${Date.now()}`;
-                var hash = crypto.createHash('sha1');
-                hash.update(org_name);
-                return hash.digest('hex') + '.' + reqself.ParseExtName(filename);
-            };
-        };
-
-    };
-
-    this.response = function () {
-        return new function() {
-            var rself = this;
-            this.Body = '';
-            this.statusCode = 200;
-
-            this.headers = {
-                'content-type' : 'text/html;charset=utf-8'
-            };
-
-            this.setHeader = function(name, val = null) {
-                if (typeof name === 'string' && val && typeof val === 'string') {
-                    rself.headers[name] = val;
-                } else if (typeof name === 'object'){
-                    for(var k in name) {
-                        rself.headers[k] = name[k];
-                    }
-                }
-            };
-
-            this.setBody = function(val, attach = false) {
-                if (attach && rself.Body) {
-                    if (typeof rself.Body === 'string'
-                        && typeof val === 'string'
-                    ) {
-                        rself.Body += val;
-                    }
-                } else {
-                    rself.Body = val;
-                }
-            };
-        };
-
     };
 
     this.ApiTable = {};
@@ -249,7 +110,7 @@ module.exports = function () {
 
             if(this.ApiTable[api_path].isStar && this.ApiTable[api_path].isArgs) {
                 var errinfo = `: * can not in two places at once ->  ${api_path}`;
-                throw errinfo;
+                throw new Error(errinfo);
             }
 
             this.ApiTable[api_path].routeArr = api_path.split('/').filter(p => p.length > 0);
@@ -331,7 +192,7 @@ module.exports = function () {
         return null;
     };
     
-    this.execRequest = function (path, req, res, stream, headers) {
+    this.execRequest = function (path, req, res) {
         var pk = null;
         var route_key = null;
         /*
@@ -363,16 +224,14 @@ module.exports = function () {
         if (route_key === null) {
             pk = the.findPath(path);
             if (pk !== null) {
-                req.Args = pk.args;
+                req.RequestARGS = pk.args;
                 route_key = pk.key;
             }
         }
 
         if (route_key === null) {
-            //res.statusCode = 404;
-            stream.respond({
-                ':status' : 404
-            }, {endStream : true});
+            res.statusCode = 404;
+            res.end('');
             return ;
         }
         
@@ -380,11 +239,13 @@ module.exports = function () {
 
         var R = the.ApiTable[route_key].ReqCall;
         req.RequestCall = R[req.method];
+        //用于分组检测
+        req.RequestGroup = '/' + the.ApiTable[route_key].routeArr[0];
 
         if (R[req.method] === undefined
            || typeof R[req.method] !== 'function'
         ) {
-            stream.end(`Error: method not be allowed : ${req.method}`);
+            res.end(`Error: method not be allowed : ${req.method}`);
             return ;
         }
 
@@ -395,15 +256,13 @@ module.exports = function () {
         ) {
             the.parseUploadData(req, res);
         }
-
+        
         return the.runMiddleware({
             req : req,
-            res : res,
-            stream : stream,
-            headers : headers
+            res : res
         });
     };
-    
+
     this.group = function(grp) {
         var gt = new function() {
             var t = this;
@@ -432,11 +291,6 @@ module.exports = function () {
                 the.delete(t.group_name+apath, callback);
             };
 
-            t.options = function(apath, callback) {
-                t.add_group_api(apath);
-                the.options(t.group_name+apath, callback);
-            };
-
             t.any = function(apath, callback) {
                 t.add_group_api(apath);
                 the.any(t.group_name+apath, callback);
@@ -449,6 +303,7 @@ module.exports = function () {
 
         return gt;
     };
+    
 
     this.mid_chain = [
         async function(rr) {
@@ -464,7 +319,7 @@ module.exports = function () {
             return rr;
         }
     ];
-    
+
     /*
         支持路由分组的解决方案（不改变已有代码即可使用）：
     */
@@ -541,7 +396,9 @@ module.exports = function () {
                 group = rr.req.RequestGroup;
             }
 
+            console.log('run group:',group);
             var last = the.mid_group[group].length-1;
+           
             await the.mid_group[group][last](rr, the.mid_group[group][last-1]);
 
         } catch (err) {
@@ -567,34 +424,34 @@ module.exports = function () {
         解析上传文件数据的函数，此函数解析的是整体的文件，
         解析过程参照HTTP/1.1协议。
     */
-    this.parseUploadData = function(req) {
+    this.parseUploadData = function(req, res) {
         var bdy = req.headers['content-type'].split('=')[1];
         bdy = bdy.trim();
         bdy = `--${bdy}`;
         end_bdy = bdy + '--';
 
         //file end flag
-        var end_index = req.RawBody.search(end_bdy);
+        var end_index = req.BodyRawData.search(end_bdy);
         var bdy_crlf = `${bdy}\r\n`;
 
         var file_end = 0;
         var data_buf = '';
 
         while(1) {
-            file_end = req.RawBody.substring(bdy_crlf.length).search(bdy);
+            file_end = req.BodyRawData.substring(bdy_crlf.length).search(bdy);
             if ((file_end + bdy_crlf.length) >= end_index) {
-                data_buf = req.RawBody.substring(bdy_crlf.length, end_index);
+                data_buf = req.BodyRawData.substring(bdy_crlf.length, end_index);
                 this.parseSingleFile(data_buf, req);
                 data_buf = '';
                 break;
             }
 
-            data_buf = req.RawBody.substring(bdy_crlf.length, file_end+bdy_crlf.length);
+            data_buf = req.BodyRawData.substring(bdy_crlf.length, file_end+bdy_crlf.length);
             this.parseSingleFile(data_buf, req);
             data_buf = '';
 
-            req.RawBody = req.RawBody.substring(file_end+bdy_crlf.length);
-            end_index = req.RawBody.search(end_bdy);
+            req.BodyRawData = req.BodyRawData.substring(file_end+bdy_crlf.length);
+            end_index = req.BodyRawData.search(end_bdy);
             if (end_index < 0) {
                 break;
             }
@@ -666,19 +523,36 @@ module.exports = function () {
 
     };
 
-    this.sendReqLog = function(stream, headers, req_type = 'ok') {
-        var real_ip = stream.session.socket.remoteAddress;
-        if (headers['x-real-ip']) {
-            real_ip = headers['x-real-ip'];
+    this.parseExtName = function (filename) {
+        if (filename.search(".") < 0) {
+            return '';
+        }
+        name_slice = filename.split('.');
+        if (name_slice.length <= 0) {
+            return '';
+        }
+        return name_slice[name_slice.length-1];
+    };
+
+    this.genFileName = function(filename, pre_str='') {
+        var org_name = `${pre_str}${Date.now()}`;
+        var hash = crypto.createHash('sha1');
+        hash.update(org_name);
+        return hash.digest('hex') + '.' + the.parseExtName(filename);
+    };
+
+    this.sendReqLog = function(req, req_type = 'ok') {
+        var real_ip = req.socket.remoteAddress;
+        if (req.headers['x-real-ip']) {
+            real_ip = req.headers['x-real-ip'];
         }
         var msg_log = null;
         if (req_type == 'error') {
             msg_log = {
                 type : 'error',
                 time : (new Date()).toString(),
-                method : headers[':method'],
-                url : headers[':authority'],
-                path : headers[':path'],
+                method : req.method,
+                url : req.url,
                 remote_addr : real_ip,
                 errmsg : err.message
             };
@@ -686,173 +560,200 @@ module.exports = function () {
             msg_log = {
                 type : 'access',
                 time : (new Date()).toString(),
-                method : headers[':method'],
-                url : headers[':authority'],
-                path : headers[':path'],
+                method : req.method,
+                url : req.url,
                 remote_addr : real_ip
                 
             };
         }
         process.send(msg_log);
     };
-    
 
-    this.reqHandler = function (stream, headers) {
-        //console.log(stream.__proto__.__proto__);
-        var req = the.request();
-        var res = the.response();
+    this.reqHandler = function (req, res) {
 
-        req.method = headers[':method'];
-        //req.ORGPATH = headers[':path'];
+        /*
+            这两个函数因为和请求数据无关，被移出到上一层。
+            并且使用添加两个属性指向它们，这样不影响代码的调用方式。
+        */
+        req.ParseExtName = the.parseExtName;
+        req.GenFileName = the.genFileName;
 
-        if (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE' || req.method == 'OPTIONS') {
-            req.headers['content-type'] = headers['content-type'];
-            req.headers['content-length'] = headers['content-length'];
+        req.IsUpload = false;
+        if (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE') {
             req.IsUpload = the.checkUploadHeader(req.headers['content-type']);
         }
 
-        var get_params = url.parse(headers[':path'], true);
+        if (req.IsUpload && the.config.parse_upload) {
+
+            req.GetFile = function(name, ind = 0) {
+                if (req.UploadFiles[name] === undefined) {
+                    return null;
+                }
+                if (ind < 0 || ind >= req.UploadFiles[name].length) {
+                    return null;
+                }
+                return req.UploadFiles[name][ind];
+            };
+
+            /*
+                options:
+                    path   
+                    filename
+            */
+            req.MoveFile = function (upf, options) {
+                if (!options.filename) {
+                    options.filename = req.GenFileName(upf.filename);
+                }
+
+                var target = options.path + '/' + options.filename;
+                
+                return new Promise((rv, rj) => {
+                    fs.writeFile(target, upf.data, {encoding : 'binary'}, err => {
+                        if (err) {
+                            rj(err);
+                        } else {
+                            rv({
+                                filename : options.filename,
+                                target : target
+                            });
+                        }
+                    });
+                });
+            };
+
+        }
+        
+        res.Body = '';
+
+        var get_params = url.parse(req.url,true);
         if (get_params.pathname == '') {
             get_params.pathname = '/';
         }
-
+        
+        req.QueryParam = get_params.query;
         req.ORGPATH = get_params.pathname;
+        req.ROUTEPATH = '';
+        req.BodyParam = {};
+        req.UploadFiles = {};
+        req.BodyRawData = '';
 
-        /*
-            跨域资源共享标准新增了一组 HTTP 首部字段，允许服务器声明哪些源站通过浏览器有权限访问哪些资源。
-            并且规范要求，对那些可能会对服务器资源产生改变的请求方法，需要先发送OPTIONS请求获取是否允许跨域
-            以及允许的方法。
-        */
-
-        if (req.method == 'OPTIONS') {
-
-            if (the.config.cors) {
-                stream.respond({
-                    ':status' : 200,
-                    'Access-control-allow-origin'   : the.config.cors,
-                    'Access-control-allow-methods' : [
-                        'GET','POST','PUT','DELETE', 'OPTIONS'
-                    ]
-                });
-
+        req.GetQueryParam = function(key, defval = null) {
+            if (req.QueryParam && req.QueryParam[key]) {
+                return req.QueryParam[key];
             }
-            if (the.config.auto_options) {
-                stream.end();
-            } else {
-                return the.execRequest(get_params.pathname, req, res, stream, headers);
+            return defval;
+        };
+
+        req.GetBodyParam = function(key, defval = null) {
+            if (req.BodyParam && req.BodyParam[key]) {
+                return req.BodyParam[key];
             }
-        }
-        else if (req.method=='GET'){
+            return defval;
+        };
+
+        req.GetRawBody = function() {
+            return req.BodyRawData;
+        };
+
+        req.GetBody = function () {
+            return req.BodyParam;
+        };
+
+        if (req.method=='GET'){
             if (cluster.isWorker && the.config.log_type !== 'ignore') {
-                the.sendReqLog(stream, headers);
+                the.sendReqLog(req);
             }
-            return the.execRequest(req.ORGPATH, req, res, stream, headers);
+            return the.execRequest(get_params.pathname, req, res);
         } else if (req.method == 'POST' || req.method == 'PUT' || req.method == 'DELETE') {
-
-            if (parseInt(headers['content-length']) > the.config.body_max_size) {
-                stream.respond({
-                    ':status' : 413
-                });
-                stream.end(
-                    'Out of limit('+the.config.body_max_size+' Bytes)'
-                );
-                stream.close();
-                return ;
-            }
             
-            stream.on('data',(data) => {
-
-                req.RawBody += data.toString('binary');
-                if (req.RawBody.length > the.config.body_max_size) {
-                    req.RawBody = '';
-                    
-                    stream.respond({
-                        ':status' : 413
-                    });
-                    stream.end(
-                        'Error: out of limit('+the.config.body_max_size+' Bytes)'
+            req.on('data',(data) => {
+                req.BodyRawData += data.toString('binary');
+                if (req.BodyRawData.length > the.config.body_max_size) {
+                    req.BodyRawData = '';
+                    res.statusCode = 413;
+                    res.end(
+                        'Request data too large, out of limit:'
+                        +'(' + (the.config.body_max_size/1000) + 'Kb)'
                     );
-                    stream.close();
+                    req.aborted = true;
+                    req.destroy(new Error('body data too large'));
                 }
             });
         
-            stream.on('end',() => {
-                if (stream.closed) {
+            req.on('end',() => {
+                if (req.aborted) {
+                    if (!res.finished) {
+                        res.end('');
+                    }
                     return ;
                 }
-
                 if (cluster.isWorker && the.config.log_type !== 'ignore') {
-                    the.sendReqLog(stream, headers);
+                    the.sendReqLog(req);
                 }
-
                 if (! req.IsUpload) {
+
                     if (req.headers['content-type'] && 
                         req.headers['content-type'].indexOf('application/x-www-form-urlencoded') >= 0
                     ) {
                         req.BodyParam = qs.parse(
-                                Buffer.from(req.RawBody,'binary').toString('utf8')
+                                Buffer.from(req.BodyRawData, 'binary').toString('utf8')
                             );
                     } else {
                         req.BodyParam = Buffer
-                                        .from(req.RawBody, 'binary')
+                                        .from(req.BodyRawData, 'binary')
                                         .toString('utf8');
                     }
                 }
 
-                return the.execRequest(req.ORGPATH, req, res, stream, headers);
+                return the.execRequest(get_params.pathname, req, res);
             });
             
-            stream.on('error', (err) => {
-                req.RawBody = '';
+            req.on('error', (err) => {
+                req.BodyRawData = '';
                 if (cluster.isWorker && the.config.log_type !== 'ignore') {
-                    the.sendReqLog(stream, headers, 'error');
+                    the.sendReqLog(req, 'error');
                 }
                 return ;
             });
 
         } else {
-            stream.respond({
-                ':status' : 405,
-                'Allow'   : ['GET','POST', 'PUT', 'DELETE']
-            }, {
-                endStream : true
-            });
-            stream.end('Method not allowed');
-            stream.close();
+            res.statusCode = 405;
+            res.setHeader('Allow', ['GET','POST', 'PUT', 'DELETE']);
+            res.end('Method not allowed');
         }
 
     };
 
+    /*
+        这是最终添加的请求中间件。基于洋葱模型，
+        这个中间件最先执行，所以最后会返回响应结果，
+        一开始挂在res上的send函数被剔除，在此处直接
+        检测res.Body类型返回数据。
+        如果response的Header没有设置Content-Type则设置默认值。
+    */
     this.addFinalResponse = function() {
         var fr = async function(rr, next) {
-            var resheaders = {
-                ':status' : rr.res.statusCode,
-            };
-
-            for(var k in rr.res.headers) {
-                resheaders[k] = rr.res.headers[k];
+            if (!rr.res.getHeader('content-type')) {
+                rr.res.setHeader('content-type', 'text/html;charset=utf8');
             }
-
-            rr.stream.respond(resheaders);
-
             await next(rr);
             
             if (rr.res.Body === null || rr.res.Body === false) {
-                rr.stream.end();
+                rr.res.end();
             } else if (typeof rr.res.Body === 'object') {
-                rr.stream.end(JSON.stringify(rr.res.Body));
+                rr.res.end(JSON.stringify(rr.res.Body));
             } else if (rr.res.Body instanceof Array) {
-                rr.stream.end(JSON.stringify(rr.res.Body));
+                rr.res.end(JSON.stringify(rr.res.Body));
             } else if (typeof rr.res.Body === 'string') {
-                rr.stream.end(rr.res.Body);
+                rr.res.end(rr.res.Body);
             } else {
-                rr.stream.end('');
+                rr.res.end('');
             }
         };
         the.add(fr);
     };
 
-    this.run = function(host = 'localhost', port = 9876) {
+    this.run = function(host = 'localhost', port = 2020) {
         //添加最终的中间件
         this.addFinalResponse();
 
@@ -864,23 +765,17 @@ module.exports = function () {
                     key  : fs.readFileSync(the.config.https_options.key),
                     cert : fs.readFileSync(the.config.https_options.cert)
                 };
-                serv = http2.createSecureServer(opts);
+                serv = https.createServer(opts, the.reqHandler);
             } catch(err) {
                 console.log(err);
                 process.exit(-1);
             }
         } else {
-            serv = http2.createServer();
+            serv = http.createServer(the.reqHandler);
         }
-        
-        serv.on('error', (err) => {
 
-        });
-
-        serv.on('stream', the.reqHandler);
-
-        serv.on('sessionError', (err) => {
-            console.log(err);
+        serv.on('clientError', (err, sock) => {
+            sock.end("Bad Request");
         });
 
         serv.listen(port, host);
@@ -890,7 +785,7 @@ module.exports = function () {
         这个函数是可以用于运维部署，此函数默认会根据CPU核数创建对应的子进程处理请求。
         子进程会调用run函数。
     */
-    this.ants = function(host='127.0.0.1', port=9876, num = 0) {
+    this.ants = function(host='127.0.0.1', port=2020, num = 0) {
         if (process.argv.indexOf('--daemon') > 0) {
 
         } else if (the.config.daemon) {
