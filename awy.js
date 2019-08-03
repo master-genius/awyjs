@@ -51,7 +51,7 @@ module.exports = function () {
         upload_mode     : 'mem',
 
         //自动解析上传的文件数据
-        parse_upload    : false,
+        parse_upload    : true,
 
         //开启HTTPS
         https_on        : false,
@@ -275,6 +275,7 @@ module.exports = function () {
             && the.config.parse_upload === true
         ) {
             the.parseUploadData(req, res);
+            req.RawBody = ''; //解析文件数据后，清理掉原始数据，这可以减少内存占用。
         }
         
         return the.runMiddleware({
