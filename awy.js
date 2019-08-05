@@ -757,7 +757,7 @@ module.exports = function () {
 
         } else {
             res.statusCode = 405;
-            res.setHeader('Allow', ['GET','POST', 'PUT', 'DELETE']);
+            res.setHeader('Allow', ['GET','POST', 'PUT', 'DELETE', 'OPTIONS']);
             res.end('Method not allowed');
         }
 
@@ -816,8 +816,9 @@ module.exports = function () {
         serv.on('clientError', (err, sock) => {
             sock.end("Bad Request");
         });
-
+        serv.setTimeout(35000); //设置超时时间为35秒
         serv.listen(port, host);
+        return serv;
     };
 
     /*

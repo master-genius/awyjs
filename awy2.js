@@ -884,7 +884,9 @@ module.exports = function () {
             console.log(err);
         });
 
+        serv.setTimeout(35000); //设置35秒超时
         serv.listen(port, host);
+        return serv;
     };
 
     /*

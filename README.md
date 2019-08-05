@@ -35,7 +35,6 @@ Body原始数据，binary编码。
 请求的原始路由，比如带参数的路由/content/:id，实际访问的路径是/content/12。则ORGPATH的值是/content/12。
 
 
-
 #### 使用示例
 
 ``` JavaScript
@@ -71,6 +70,32 @@ curl 'http://localhost:8080/'
   success
 
 ```
+
+#### run返回值
+
+run接口的返回值是http.createServer的返回值，也就是http.Server的实例。以下示例设置超时时间为5秒。
+
+对于awy2来说，是http2.createSercureServer的返回值，同样有setTimeout方法。
+
+```
+const awy = require('awy');
+
+var ar = new awy();
+
+ar.get('/', async rr => {
+    rr.res.Body = 'ok';
+});
+
+ar.run('localhost', 8080).setTimeout(5000);
+
+```
+
+#### 超时
+
+HTTP模块的默认超时时间为120秒，awy框架默认设置为35秒，你可以通过run的返回值调用setTimeout方法设置一个合理的时间，或者通过请求请求参数rr.req以及rr.res设置具体请求的超时时间。
+
+对于HTTP服务来说，一般正常的服务，请求处理时间都很短，不需要特别长的超时设置，对比较特殊的Web服务，比如上传和下载，可以设置单独的超时。
+
 
 #### 获取URL参数（QueryString参数）
 

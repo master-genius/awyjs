@@ -70,5 +70,5 @@ as.map(['POST', 'PUT'], '/upload', async rr => {
 
 
 //default 127.0.0.1:9876
-as.ants();
+as.run().setTimeout(3000);
 

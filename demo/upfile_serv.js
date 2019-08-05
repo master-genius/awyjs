@@ -81,5 +81,5 @@ aserv.post('/upload2', async rr => {
     }
 });
 
-aserv.run('127.0.0.1', 2021);
+aserv.run('0.0.0.0', 2021);
 
