@@ -2,10 +2,9 @@
 
 
 为了可以降低回调深度，并且能够更好的集成async和await。请求返回的结果是Promise。
-最开始是为了方便的请求微信接口而设计，所以目前支持GET，POST，并基于此实现了上传和下载。
+最开始是为了方便的请求微信接口而设计，目前针对GET, POST,PUT, DELETE请求封装了方便实用的接口。
 
-但是其实post接口可以很方便的改成支持POST和PUT请求的形式。
-
+get、post、put、delete、download都支持http.request参数options的选项。
 
 #### GET请求
 
@@ -14,7 +13,7 @@
 const awyhttp = require('awyhttp');
 
 //访问http://localhost:2021需要先启动demo中的upfile_serv.js服务。
-
+//支持options和encoding参数，encoding默认为utf8
 awyhttp.get('http://localhost:2021/')
 .then(data => {
     console.log(data);
@@ -42,7 +41,6 @@ awyhttp.post('http://localhost:2021/pt', {
 }, err => {
     console.log(err);
 });
-
 
 ```
 
@@ -83,5 +81,24 @@ awyhttp.download(img_url, {
     console.log(err);
 });
 
+
+```
+
+#### POST请求超时
+
+``` JavaScript
+
+awyhttp.post('http://localhost:2021/pt', {
+    data : {
+        name : 'Albert Einstein',
+        identity : 'physics'
+    },
+    timeout: 5000
+})
+.then(data => {
+    console.log(data);
+}, err => {
+    console.log(err);
+});
 
 ```

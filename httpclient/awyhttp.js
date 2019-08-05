@@ -87,22 +87,18 @@ module.exports = new function() {
             onData
         }
     */
-    this.get = function(url, options = null) {
-
-        if (options === null) {
-            options = {
-                encoding : 'utf8'
-            };
-        } else if (options.encoding === 'utf8') {
-            options.encoding = 'utf8';
-        }
+    this.get = function(url, options, encoding='utf8') {
 
         var opts = this.parseUrl(url);
         opts.method = 'GET';
 
+        for(var k in options) {
+            opts[k] = options[k];
+        }
+
         var h = (opts.protocol === 'https:') ? https : http;
         return new Promise((rv, rj) => {
-            h.get(url, (res) => {
+            h.get(url, opts, (res) => {
 
                 let error = null;
                 if (res.statusCode !== 200) {
@@ -115,7 +111,7 @@ module.exports = new function() {
                     rj(error);
                 }
 
-                res.setEncoding(options.encoding);
+                res.setEncoding(encoding);
                 var get_data = '';
 
                 res.on('data', (data) => {
@@ -123,7 +119,7 @@ module.exports = new function() {
                         options.onData(data);
                     }
 
-                    get_data += data.toString(options.encoding);
+                    get_data += data.toString(encoding);
                 });
 
                 res.on('end', () => {
@@ -195,6 +191,12 @@ module.exports = new function() {
                 }
             }
             opts.headers['content-length'] = Buffer.byteLength(post_data);
+        }
+
+        for(var k in options) {
+            if (k!='data' && k!='headers') {
+                opts[k] = options[k];
+            }
         }
         
         return new Promise ((rv, rj) => {
