@@ -772,8 +772,6 @@ module.exports = function () {
                 rr.res.end();
             } else if (typeof rr.res.Body === 'object') {
                 rr.res.end(JSON.stringify(rr.res.Body));
-            } else if (rr.res.Body instanceof Array) {
-                rr.res.end(JSON.stringify(rr.res.Body));
             } else if (typeof rr.res.Body === 'string') {
                 rr.res.end(rr.res.Body);
             } else {
