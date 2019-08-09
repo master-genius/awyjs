@@ -75,7 +75,7 @@ curl 'http://localhost:8080/'
 
 run接口的返回值是http.createServer的返回值，也就是http.Server的实例。以下示例设置超时时间为5秒。
 
-对于awy2来说，是http2.createSercureServer的返回值，同样有setTimeout方法。
+对于awy2来说，是http2.createSecureServer的返回值http2.Http2SecureServer实例，同样有setTimeout方法。
 
 ```
 const awy = require('awy');
@@ -89,6 +89,8 @@ ar.get('/', async rr => {
 ar.run('localhost', 8080).setTimeout(5000);
 
 ```
+
+通过返回值获取实例可以使用Node.js原生提供的功能，这样框架做更少的事情，学习和使用成本相对也低。框架主要使用了request以及clientError事件，对于http2来说，主要使用了stream和sessionError事件，通过返回值开发者可以使用更多的事件做扩展处理。
 
 #### 超时
 
@@ -359,7 +361,7 @@ ant.map(['GET', 'POST'], '/*', async rr => {
 
 路由分组是基于路径分隔符的第一个字符串，比如/api/a和/api/b都使用/api分组。框架的设计机制保证可以对中间件也进行分组，通过group接口返回的对象可以使用get、post、put、delete、options、any、add接口。这时候使用add添加的中间件只会在当前分组下执行。以下代码给出了完整示例：
 
-```
+``` JavaScript
 const awy = require('awy');
 
 var ar = new awy();
@@ -435,33 +437,13 @@ as.delete('/resource/:id', async rr => {
     //开启守护进程，守护进程用于上线部署，要使用ants接口，run接口不支持
     daemon          : false,
 
-    log_file        : './access.log',
-
-    error_log_file  : './error.log',
-
-    /*
-        调用ants接口，如果设置路径不为空字符串，
-        则会把pid写入到此文件，可用于服务管理。
-    */
-    pid_file        : '',
-
-    /*
-        日志类型：
-            stdio   标准输入输出，可用于调试
-            ignore  没有
-            file    文件，此时会使用log_file以及error_log_file 配置的文件路径
-
-        这个选项以及两个日志文件配置只有在开启daemon的情况下才会生效
-    */
-    log_type        : 'stdio',
-
     /*
         暂时只是实现了mem模式，文件会被放在内存里。
     */
     upload_mode     : 'mem',
 
     //自动解析上传的数据
-    parse_upload    : false,
+    parse_upload    : true,
 
     //开启HTTPS
     https_on        : false,
