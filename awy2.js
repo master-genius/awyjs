@@ -448,6 +448,11 @@ module.exports = function () {
             t.add = function(midcall, preg = null) {
                 the.add(midcall, preg, t.group_name);
             };
+
+            t.map = function(marr, apath, callback) {
+                t.add_group_api(apath);
+                the.map(marr, t.group_name+apath, callback);
+            };
         };
 
         return gt;
