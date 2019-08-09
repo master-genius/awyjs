@@ -396,6 +396,27 @@ ar.run('localhost', 8080);
 
 ```
 
+#### 路由结构
+
+路由结构和通常的方式有些不同，主要结构如下所示：
+
+```
+{
+    "GET" : {
+        "/a" : {/*...*/},
+        "/b" : {/*...*/}
+    },
+    "POST" : {
+        "/a" : {/*...*/},
+        "/b" : {/*...*/},
+        "/xyz" : {/*...*/}
+    },
+    "PUT" : {
+        "/x" : {/*...*/}
+    }
+}
+```
+在查找时，先根据请求方法确定要去哪里查找，所以如果存在路径/xyz属于POST请求，使用GET方式，会返回404。
 
 #### RESTFul
 
@@ -406,22 +427,22 @@ const awy = require('awy');
 var as = new awy();
 
 as.get('/content/:id', async rr => {
-   ....
+   //...
 });
 
 as.post('/content', async rr => {
-    ...
+    //...
 });
 
 as.put('/content/:id', async rr => {
-    ...
+    //...
 });
 
 as.delete('/resource/:id', async rr => {
-    ...
+    //...
 });
 
-
+as.run('localhost', 1234);
 ```
 
 #### 配置选项
@@ -463,27 +484,8 @@ run接口运行后，只能作为当前shell的子进程执行，如果加上&�
 
 这个操作使用ants接口可以快速实现，ants接口的前两个参数和run一致：接受host和port。第三个参数是一个整数表示要创建几个子进程处理请求，不填写默认为0，这种情况会根据CPU核心数创建子进程。
 
-ants接口运行后，Master进程负责收集子进程处理请求的日志信息并写入到日志文件，这需要config中log_type设置为file，并且设置log_file以及error_log_file的路径：
-
-```
-
-const awy = require('awy');
-
-var ant = new awy();
-
-ant.config.log_type = 'file';
-ant.config.log_file = './access.log';
-ant.config.error_log_file = './error.log';
-
-//....
-
-ant.ants('0.0.0.0', 80);
-
-```
-
-ants运行后，Master进程会把stdout和stderr重定向到指定的文件，而子进程处理请求使用console.log仍然会输出到终端。
-
 如果不需要Cluster模块，则可以使用shell命令setsid加上要运行的命令：
+
 ```
 setsid node serv.js
 ```

@@ -331,9 +331,9 @@ module.exports = function () {
                 the.add(midcall, preg, t.group_name);
             };
 
-            t.map = function(apath, callback) {
+            t.map = function(marr, apath, callback) {
                 t.add_group_api(apath);
-                the.options(t.group_name+apath, callback);
+                the.map(marr, t.group_name+apath, callback);
             };
         };
 

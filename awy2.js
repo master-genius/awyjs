@@ -816,17 +816,17 @@ module.exports = function () {
 
     this.addFinalResponse = function() {
         var fr = async function(rr, next) {
-
             rr.res.headers[':status'] = rr.res.statusCode;
+            if (rr.res.headers['content-type'] === undefined) {
+                rr.res.headers['content-type'] = 'text/html;charset=utf8';
+            }
+            
             rr.stream.respond(rr.res.headers);
-
             await next(rr);
             
             if (rr.res.Body === null || rr.res.Body === false) {
                 rr.stream.end();
             } else if (typeof rr.res.Body === 'object') {
-                rr.stream.end(JSON.stringify(rr.res.Body));
-            } else if (rr.res.Body instanceof Array) {
                 rr.stream.end(JSON.stringify(rr.res.Body));
             } else if (typeof rr.res.Body === 'string') {
                 rr.stream.end(rr.res.Body);
