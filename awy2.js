@@ -25,9 +25,7 @@ module.exports = function () {
             则会把pid写入到此文件，可用于服务管理。
         */
         pid_file        : '',
-
         log_file        : './access.log',
-
         error_log_file  : './error.log',
 
         /*
@@ -196,7 +194,13 @@ module.exports = function () {
 
     };
 
-    this.ApiTable = {};
+    this.ApiTable = {
+        'GET'   : {},
+        'POST'  : {},
+        'PUT'   : {},
+        'DELETE': {},
+        'OPTIONS': {}
+    };
     
     this.get = function(api_path, callback) {
         this.addPath(api_path, 'GET', callback);
@@ -224,74 +228,77 @@ module.exports = function () {
         }
     };
 
-
     /*
         由于在路由匹配时会使用/分割路径，所以在添加路由时先处理好。
         允许:表示变量，*表示任何路由，但是二者不能共存，因为无法知道后面的是变量还是路由。
         比如：/static/*可以作为静态文件所在目录，但是后面的就直接作为*表示的路径，
         并不进行参数解析。
     */
-    this.addPath = function(api_path, method, callback) {
-
-        if (this.ApiTable[api_path] === undefined) {
-            this.ApiTable[api_path] = {
+   this.addPath = function(api_path, method, callback) {
+        var add_req = {
                 isArgs:  false,
                 isStar:  false,
                 routeArr: [],
-                ReqCall: {},
+                ReqCall: callback,
             };
-            if (api_path.indexOf(':') >= 0) {
-                this.ApiTable[api_path].isArgs = true;
-            }
-            if (api_path.indexOf('*') >= 0) {
-                this.ApiTable[api_path].isStar = true;
-            }
-
-            if(this.ApiTable[api_path].isStar && this.ApiTable[api_path].isArgs) {
-                var errinfo = `: * can not in two places at once ->  ${api_path}`;
-                throw errinfo;
-            }
-
-            this.ApiTable[api_path].routeArr = api_path.split('/').filter(p => p.length > 0);
-        }
 
         switch (method) {
             case 'GET':
             case 'POST':
             case 'PUT':
             case 'DELETE':
-                this.ApiTable[api_path].ReqCall[method] = callback;
+            case 'OPTIONS':
+                this.ApiTable[method][api_path] = add_req;
+                break;
+            default:
                 return ;
-            default:;
         }
+        if (api_path.indexOf(':') >= 0) {
+            this.ApiTable[method][api_path].isArgs = true;
+        }
+        if (api_path.indexOf('*') >= 0) {
+            this.ApiTable[method][api_path].isStar = true;
+        }
+
+        if(this.ApiTable[method][api_path].isStar 
+            && this.ApiTable[method][api_path].isArgs
+        ) {
+            var errinfo = `: * can not in two places at once ->  ${api_path}`;
+            throw new Error(errinfo);
+        }
+
+        this.ApiTable[method][api_path].routeArr = api_path.split('/').filter(p => p.length > 0);
+
     };
 
     /*
         如果路径超过2000字节长度，并且分割数组太多，length超过8则不处理。
     */
-    this.findPath = function(path) {
+    this.findPath = function(path, method) {
+        if (!the.ApiTable[method]) {
+            return null;
+        }
         if (path.length > 2000) {
             return null;
         }
-        var path_split = path.split('/');
-        path_split = path_split.filter(p => p.length > 0);
-        if (path_split.length > 8) {
+        var path_split = path.split('/').filter(p => p.length > 0);
+        if (path_split.length > 9) {
             return null;
         }
 
         var next = 0;
         var args = {};
         var rt = null;
-        for (var k in the.ApiTable) {
-            rt = the.ApiTable[k];
+        for (var k in the.ApiTable[method]) {
+            rt = the.ApiTable[method][k];
             if (rt.isArgs === false && rt.isStar === false) {
                 continue;
             }
 
             if (
-              (rt.routeArr.length !== path_split.length && rt.isStar === false)
-              ||
-              (rt.routeArr.length > path_split.length)
+            (rt.routeArr.length !== path_split.length && rt.isStar === false)
+            ||
+            (rt.isStar && rt.routeArr.length > path_split.length+1)
             ) {
                 continue;
             }
@@ -338,13 +345,13 @@ module.exports = function () {
             路由处理会自动处理末尾的/，
             /content/123和/content/123/是同一个请求
         */
-        if (the.ApiTable[path] === undefined) {
+        if (the.ApiTable[req.method][path] === undefined) {
             if (path[path.length-1] === '/') {
                 var lpath = path.substring(0, path.length-1);
-                if (the.ApiTable[lpath] !== undefined) {
+                if (the.ApiTable[req.method][lpath] !== undefined) {
                     route_key = lpath;
                 }
-            } else if(the.ApiTable[`${path}/`] !== undefined) {
+            } else if(the.ApiTable[req.method][`${path}/`] !== undefined) {
                 route_key = `${path}/`;
             }
 
@@ -361,7 +368,7 @@ module.exports = function () {
         }
         
         if (route_key === null) {
-            pk = the.findPath(path);
+            pk = the.findPath(path, req.method);
             if (pk !== null) {
                 req.Args = pk.args;
                 route_key = pk.key;
@@ -378,15 +385,10 @@ module.exports = function () {
         
         req.ROUTEPATH = route_key;
 
-        var R = the.ApiTable[route_key].ReqCall;
-        req.RequestCall = R[req.method];
-
-        if (R[req.method] === undefined
-           || typeof R[req.method] !== 'function'
-        ) {
-            stream.end(`Error: method not be allowed : ${req.method}`);
-            return ;
-        }
+        var R = the.ApiTable[req.method][route_key];
+        req.RequestCall = R.ReqCall;
+        //用于分组检测
+        req.RequestGroup = '/' + R.routeArr[0];
 
         if (
             (req.method === 'POST' || req.method === 'PUT' )
@@ -485,12 +487,6 @@ module.exports = function () {
         /*
             直接跳转下层中间件，根据匹配规则如果不匹配则执行此函数。
         */
-        /*
-        var jump = async function(rr, next) {
-            await next(rr);
-            return rr;
-        };
-        */
 
         var genRealCall = function(prev_mid, group) {
             return async function(rr) {
@@ -503,7 +499,6 @@ module.exports = function () {
                         ||
                         (preg instanceof Array && preg.indexOf(rr.req.ROUTEPATH) < 0)
                     ) {
-                        //await jump(rr, the.mid_group[group][prev_mid]);
                         await the.mid_group[group][prev_mid](rr);
                         return rr;
                     }
@@ -744,9 +739,6 @@ module.exports = function () {
             }
         }
         else if (req.method=='GET'){
-            if (cluster.isWorker && the.config.log_type !== 'ignore') {
-                the.sendReqLog(stream, headers);
-            }
             return the.execRequest(req.ORGPATH, req, res, stream, headers);
         } else if (req.method == 'POST' || req.method == 'PUT' || req.method == 'DELETE') {
 
@@ -782,10 +774,6 @@ module.exports = function () {
                     return ;
                 }
 
-                if (cluster.isWorker && the.config.log_type !== 'ignore') {
-                    the.sendReqLog(stream, headers);
-                }
-
                 if (! req.IsUpload) {
                     if (req.headers['content-type'] && 
                         req.headers['content-type'].indexOf('application/x-www-form-urlencoded') >= 0
@@ -805,9 +793,6 @@ module.exports = function () {
             
             stream.on('error', (err) => {
                 req.RawBody = '';
-                if (cluster.isWorker && the.config.log_type !== 'ignore') {
-                    the.sendReqLog(stream, headers, 'error');
-                }
                 stream.close(http2.constants.NGHTTP2_FLOW_CONTROL_ERROR);
             });
 
