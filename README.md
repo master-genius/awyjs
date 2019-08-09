@@ -364,7 +364,7 @@ const awy = require('awy');
 
 var ar = new awy();
 
-//使用api分组，注意/不能少。
+//使用api分组。
 var api = ar.group('/api');
 
 /*
