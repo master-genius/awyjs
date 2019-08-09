@@ -40,7 +40,7 @@ ant.post('/upload', async rr => {
 });
 
 ant.post('/pt', async rr => {
-    console.log(rr.req.UploadFiles);
+    console.log(rr.req.BodyParam);
     rr.res.Body = 'ok';
 });
 
