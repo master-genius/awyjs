@@ -330,6 +330,11 @@ module.exports = function () {
             t.add = function(midcall, preg = null) {
                 the.add(midcall, preg, t.group_name);
             };
+
+            t.map = function(apath, callback) {
+                t.add_group_api(apath);
+                the.options(t.group_name+apath, callback);
+            };
         };
 
         return gt;
@@ -354,7 +359,6 @@ module.exports = function () {
     /*
         支持路由分组的解决方案（不改变已有代码即可使用）：
     */
-
     this.mid_group = {
         '*global*' : [this.mid_chain[0], this.mid_chain[1]]
     };
@@ -370,11 +374,6 @@ module.exports = function () {
         /*
             直接跳转下层中间件，根据匹配规则如果不匹配则执行此函数。
         */
-        /* var jump = async function(rr, next) {
-            await next(rr);
-            return rr;
-        }; */
-
         var genRealCall = function(prev_mid, group) {
             return async function(rr) {
 
@@ -386,7 +385,6 @@ module.exports = function () {
                         ||
                         (preg instanceof Array && preg.indexOf(rr.req.ROUTEPATH) < 0)
                     ) {
-                        //await jump(rr, the.mid_group[group][prev_mid]);
                         await the.mid_group[group][prev_mid](rr);
                         return rr;
                     }
@@ -700,9 +698,6 @@ module.exports = function () {
             }
         }
         else if (req.method=='GET'){
-            if (cluster.isWorker && the.config.log_type !== 'ignore') {
-                the.sendReqLog(req);
-            }
             return the.execRequest(get_params.pathname, req, res);
         } else if (req.method == 'POST' || req.method == 'PUT' || req.method == 'DELETE') {
             
@@ -727,9 +722,7 @@ module.exports = function () {
                     }
                     return ;
                 }
-                if (cluster.isWorker && the.config.log_type !== 'ignore') {
-                    the.sendReqLog(req);
-                }
+                
                 if (! req.IsUpload) {
 
                     if (req.headers['content-type'] && 
@@ -750,9 +743,6 @@ module.exports = function () {
             
             req.on('error', (err) => {
                 req.RawBody = '';
-                if (cluster.isWorker && the.config.log_type !== 'ignore') {
-                    the.sendReqLog(req, 'error');
-                }
                 return ;
             });
 
