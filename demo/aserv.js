@@ -1,6 +1,6 @@
-const awy = require('../awyg.js');
-const awy_cookie = require('../middleware/awy-cookie.js');
-const awy_sess = require('../middleware/awy-session2.js');
+const awy = require('../awy.js');
+//const awy_cookie = require('../middleware/awy-cookie.js');
+//const awy_sess = require('../middleware/awy-session2.js');
 
 var as = new awy();
 
@@ -77,6 +77,4 @@ as.get('/exception', async rr => {
 });
 
 
-//default 127.0.0.1:2020
-as.ants();
-
+as.ants('localhost',9876);

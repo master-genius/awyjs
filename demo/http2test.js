@@ -40,7 +40,8 @@ ant.post('/upload', async rr => {
 });
 
 ant.post('/pt', async rr => {
-    rr.res.Body = rr.req.GetBody();
+    console.log(rr.req.UploadFiles);
+    rr.res.Body = 'ok';
 });
 
 ant.map(['GET','POST'], '/rs/:id', async rr => {
@@ -48,7 +49,7 @@ ant.map(['GET','POST'], '/rs/:id', async rr => {
         rr.res.Body = rr.req.Args;
     } else {
         console.log(rr.req.Args);
-        rr.res.Body = rr.req.GetBody();
+        rr.res.Body = rr.req.RawBody;
     }
 });
 

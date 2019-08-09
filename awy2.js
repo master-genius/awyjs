@@ -62,7 +62,6 @@ module.exports = function () {
      * 从HTTP/1.1更新到HTTP/2，做兼容处理，
      * 尽量保证不更改代码即可切换。
      * 这里使用空的request和response对象作为初始的请求和响应。
-     * request和response一定要使用new操作，否则会挂到
     */
     this.request = function () {
         return new function() {
@@ -168,6 +167,7 @@ module.exports = function () {
             this.statusCode = 200;
 
             this.headers = {
+                ':status' : 200,
                 'content-type' : 'text/html;charset=utf-8'
             };
 
@@ -485,10 +485,12 @@ module.exports = function () {
         /*
             直接跳转下层中间件，根据匹配规则如果不匹配则执行此函数。
         */
+        /*
         var jump = async function(rr, next) {
             await next(rr);
             return rr;
         };
+        */
 
         var genRealCall = function(prev_mid, group) {
             return async function(rr) {
@@ -501,7 +503,8 @@ module.exports = function () {
                         ||
                         (preg instanceof Array && preg.indexOf(rr.req.ROUTEPATH) < 0)
                     ) {
-                        await jump(rr, the.mid_group[group][prev_mid]);
+                        //await jump(rr, the.mid_group[group][prev_mid]);
+                        await the.mid_group[group][prev_mid](rr);
                         return rr;
                     }
                 }
@@ -548,7 +551,7 @@ module.exports = function () {
         } catch (err) {
             console.log(err);
             rr.res.statusCode = 500;
-            rr.res.end();
+            rr.stream.close(http2.constants.NGHTTP2_FLOW_CONTROL_ERROR);
         }
     };
     
@@ -699,16 +702,13 @@ module.exports = function () {
     
 
     this.reqHandler = function (stream, headers) {
-        //console.log(stream.__proto__.__proto__);
         var req = the.request();
         var res = the.response();
 
         req.method = headers[':method'];
-        //req.ORGPATH = headers[':path'];
+        req.headers = headers;
 
         if (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE' || req.method == 'OPTIONS') {
-            req.headers['content-type'] = headers['content-type'];
-            req.headers['content-length'] = headers['content-length'];
             req.IsUpload = the.checkUploadHeader(req.headers['content-type']);
         }
 
@@ -808,13 +808,13 @@ module.exports = function () {
                 if (cluster.isWorker && the.config.log_type !== 'ignore') {
                     the.sendReqLog(stream, headers, 'error');
                 }
-                return ;
+                stream.close(http2.constants.NGHTTP2_FLOW_CONTROL_ERROR);
             });
 
         } else {
             stream.respond({
                 ':status' : 405,
-                'Allow'   : ['GET','POST', 'PUT', 'DELETE']
+                'Allow'   : ['GET','POST', 'PUT', 'DELETE', 'OPTIONS']
             }, {
                 endStream : true
             });
@@ -826,15 +826,9 @@ module.exports = function () {
 
     this.addFinalResponse = function() {
         var fr = async function(rr, next) {
-            var resheaders = {
-                ':status' : rr.res.statusCode,
-            };
 
-            for(var k in rr.res.headers) {
-                resheaders[k] = rr.res.headers[k];
-            }
-
-            rr.stream.respond(resheaders);
+            rr.res.headers[':status'] = rr.res.statusCode;
+            rr.stream.respond(rr.res.headers);
 
             await next(rr);
             
@@ -873,18 +867,16 @@ module.exports = function () {
         } else {
             serv = http2.createServer();
         }
-        
-        serv.on('error', (err) => {
-
-        });
 
         serv.on('stream', the.reqHandler);
 
-        serv.on('sessionError', (err) => {
-            console.log(err);
+        serv.on('sessionError', (err, sess) => {
+            //console.log(sess);
+            //console.log(err);
+            sess.close();
         });
 
-        serv.setTimeout(35000); //设置35秒超时
+        serv.setTimeout(25000); //设置25秒超时
         serv.listen(port, host);
         return serv;
     };

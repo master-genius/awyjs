@@ -370,10 +370,10 @@ module.exports = function () {
         /*
             直接跳转下层中间件，根据匹配规则如果不匹配则执行此函数。
         */
-        var jump = async function(rr, next) {
+        /* var jump = async function(rr, next) {
             await next(rr);
             return rr;
-        };
+        }; */
 
         var genRealCall = function(prev_mid, group) {
             return async function(rr) {
@@ -386,7 +386,8 @@ module.exports = function () {
                         ||
                         (preg instanceof Array && preg.indexOf(rr.req.ROUTEPATH) < 0)
                     ) {
-                        await jump(rr, the.mid_group[group][prev_mid]);
+                        //await jump(rr, the.mid_group[group][prev_mid]);
+                        await the.mid_group[group][prev_mid](rr);
                         return rr;
                     }
                 }
@@ -816,7 +817,7 @@ module.exports = function () {
         serv.on('clientError', (err, sock) => {
             sock.end("Bad Request");
         });
-        serv.setTimeout(35000); //设置超时时间为35秒
+        serv.setTimeout(25000); //设置超时时间为25秒
         serv.listen(port, host);
         return serv;
     };

@@ -92,7 +92,7 @@ ar.run('localhost', 8080).setTimeout(5000);
 
 #### 超时
 
-HTTP模块的默认超时时间为120秒，awy框架默认设置为35秒，你可以通过run的返回值调用setTimeout方法设置一个合理的时间，或者通过请求请求参数rr.req以及rr.res设置具体请求的超时时间。
+HTTP模块的默认超时时间为120秒，awy框架默认设置为25秒，你可以通过run的返回值调用setTimeout方法设置一个合理的时间，或者通过请求请求参数rr.req以及rr.res设置具体请求的超时时间。
 
 对于HTTP服务来说，一般正常的服务，请求处理时间都很短，不需要特别长的超时设置，对比较特殊的Web服务，比如上传和下载，可以设置单独的超时。
 
@@ -106,8 +106,6 @@ const awy = require('awy');
 var ar = new awy();
 
 ar.get('/test', async rr => {
-    //获取name，如果不存在则默认返回空字符串。
-    //如果第二个参数不填写，则name不存在会返回null。
     var {name} = rr.req.Param;
     console.log(name);
     rr.res.Body = name;
@@ -357,6 +355,46 @@ ant.map(['GET', 'POST'], '/*', async rr => {
 
 ```
 
+#### 路由分组
+
+路由分组是基于路径分隔符的第一个字符串，比如/api/a和/api/b都使用/api分组。框架的设计机制保证可以对中间件也进行分组，通过group接口返回的对象可以使用get、post、put、delete、options、any、add接口。这时候使用add添加的中间件只会在当前分组下执行。以下代码给出了完整示例：
+
+```
+const awy = require('awy');
+
+var ar = new awy();
+
+//使用api分组，注意/不能少。
+var api = ar.group('/api');
+
+/*
+    分组下的路径仅仅就是把分组名和路径拼接到一起作为整体的路由。
+    最终执行就是/api/a或/api/b这样的形式。
+*/
+
+api.get('/a', async rr => {
+    rr.res.Body = 'a';
+});
+
+api.get('/b', async rr => {
+    rr.res.Body = 'b';
+});
+
+//此中间件只会在/api分组执行。
+api.add(async (rr, next) => {
+    console.log('/api middleware');
+});
+
+//全局的路径，尽管是/api开头，但是不属于/api分组
+ar.get('/api/xyz', async rr => {
+    rr.res.Body = 'xyz';
+});
+
+ar.run('localhost', 8080);
+
+```
+
+
 #### RESTFul
 
 ``` JavaScript
@@ -377,7 +415,7 @@ as.put('/content/:id', async rr => {
     ...
 });
 
-as.map(['GET', 'PUT', 'DELETE'], '/resource/:id', async rr => {
+as.delete('/resource/:id', async rr => {
     ...
 });
 

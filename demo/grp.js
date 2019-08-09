@@ -10,10 +10,10 @@ api.get('/a', async rr => {
     };
 });
 
-api.post('/xyz', async rr => {
+api.get('/xyz', async rr => {
     console.log(rr.req.RequestGroup);
+    rr.res.Body = 'xyz';
 
-    console.log(rr.req.headers);
 });
 
 
@@ -36,16 +36,16 @@ ant.options('/*', async rr => {
     console.log('options');
 });
 
-api_sub.add(async (rr, next) => {
+api.add(async (rr, next) => {
     console.log('api sub : running');
     await next(rr);
-});
+}, /xy/i);
 
-console.log(ant.api_group_table);
+/* console.log(ant.api_group_table);
 
 console.log(ant.ApiTable);
 
 console.log(ant.mid_group);
-
+ */
 ant.run('localhost', 8099);
 
