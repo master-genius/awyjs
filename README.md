@@ -17,30 +17,39 @@ awy2.js是支持HTTP/2协议的版本，并且只能使用HTTP/2。npm安装：n
 #### API和属性参考
 
 **rr.req.Param**
+
 URL参数，JSON键值对存储。
 
 **rr.req.BodyParam**
+
 POST/PUT提交的Body参数，根据content-type不同值，有不同的处理方式，键值对存储或者是其他格式化文本。
 
 **rr.req.RawBody**
+
 Body原始数据，binary编码。
 
 **rr.req.Args**
+
 路由参数。
 
 **rr.req.ROUTEPATH**
+
 请求的真正处理路由。比如带参数的路由/content/:id，实际访问的路径是/content/12。ROUTEPATH的值是/content/:id。
 
 **rr.req.ORGPATH**
+
 请求的原始路由，比如带参数的路由/content/:id，实际访问的路径是/content/12。则ORGPATH的值是/content/12。
 
 **rr.req.UploadFiles**
+
 上传文件数据，JSON格式存储，每个上传名指向一个数组，数组中的数据是JSON格式，包括content-type、fielname、data字段，其中data是实际文件的数据。
 
 **rr.req.GetFile和rr.req.MoveFile**
+
 辅助上传文件操作的接口，GetFile用于获取文件数据，MoveFile移动文件，实际就是对UploadFiles的操作。详细使用见后面的示例。
 
 **rr.res.Body**
+
 要返回的数据，只需要对rr.res.Body赋值即可。
 
 #### 使用示例
