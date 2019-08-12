@@ -549,9 +549,10 @@ module.exports = function () {
             await the.mid_group[group][last](rr, the.mid_group[group][last-1]);
 
         } catch (err) {
-            console.log(err);
+            console.log(err.message);
             rr.res.statusCode = 500;
-            rr.stream.close(http2.constants.NGHTTP2_FLOW_CONTROL_ERROR);
+            //http2.constants.NGHTTP2_STREAM_CLOSED
+            rr.stream.close(http2.constants.NGHTTP2_INTERNAL_ERROR);
         }
     };
     
@@ -719,6 +720,15 @@ module.exports = function () {
 
         req.ORGPATH = get_params.pathname;
 
+        stream.on('error', (err) => {
+            req.RawBody = '';
+            stream.close(http2.constants.NGHTTP2_INTERNAL_ERROR);
+        });
+
+        stream.on('close', (err) => {
+            //console.log('closed');
+        });
+
         /*
             跨域资源共享标准新增了一组 HTTP 首部字段，允许服务器声明哪些源站通过浏览器有权限访问哪些资源。
             并且规范要求，对那些可能会对服务器资源产生改变的请求方法，需要先发送OPTIONS请求获取是否允许跨域
@@ -795,11 +805,6 @@ module.exports = function () {
 
                 return the.execRequest(req.ORGPATH, req, res, stream, headers);
             });
-            
-            stream.on('error', (err) => {
-                req.RawBody = '';
-                stream.close(http2.constants.NGHTTP2_FLOW_CONTROL_ERROR);
-            });
 
         } else {
             stream.respond({
@@ -831,7 +836,7 @@ module.exports = function () {
             } else if (typeof rr.res.Body === 'string') {
                 rr.stream.end(rr.res.Body);
             } else {
-                rr.stream.end('');
+                rr.stream.end();
             }
         };
         the.add(fr);

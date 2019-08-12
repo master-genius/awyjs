@@ -12,6 +12,15 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 module.exports = new function() {
 
     var the = this;
+
+    //最大同时上传文件数量限制
+    this.max_upload_limit = 10;
+
+    //上传文件最大数据量：2Gb
+    this.max_upload_size = 2147483648;
+
+    //单个文件最大上传大小：1Gb
+    this.max_file_size = 1073741824;
     
     this.mime_map = {
         'css'   : 'text/css',
@@ -28,6 +37,11 @@ module.exports = new function() {
         'mp3'   : 'audio/mpeg',
         'mp4'   : 'video/mp4',
         'c'     : 'text/plain',
+        'go'    : 'text/plain',
+        'cpp'   : 'text/plain',
+        'json'  : 'text/plain',
+        'php'   : 'text/plain',
+        'java'  : 'text/plain',
         'exe'   : 'application/octet-stream',
         'txt'   : 'text/plain',
         'wav'   : 'audio/x-wav',
@@ -87,56 +101,6 @@ module.exports = new function() {
  */
     this.methodList = ['GET','POST','PUT','DELETE','OPTIONS'];
 
-    /*
-        options
-            encoding
-            req
-            conn
-
-    */
-
-    this.connect = function (url, options) {
-        var h = http2.connect(url, options);
-        /*
-            opts
-                encoding
-                data
-                timeout
-                <clienthttp2session.request's options>
-        */
-        h.req = async function (headers, opts) {
-
-        };
-
-        return h;
-    };
-
-    this.request = async function (url, options = {encoding:'utf8'}) {
-        if (!options.req) {
-            options.req = {};
-        }
-        var pr = this.preRequest(url, options);
-        var session = null;
-        if (options.conn) {
-            session = http2.connect(pr, options.conn);
-        } else {
-            session = http2.connect(pr);
-        }
-
-
-
-    };
-
-    /*
-        options
-            headers
-            method
-            data
-            encoding
-            <http2.request's options>
-        
-    */
-
     this.parseUrl = function (url, options = {}) {
         var urlobj = new urlparse.URL(url);
         var headers = {
@@ -156,267 +120,300 @@ module.exports = new function() {
         return headers;
     };
 
-
-    /*
-        options = {
-            encoding,
-            onData
-        }
-    */
-    this.get = function(url, options, encoding='utf8') {
-
-        var opts = this.parseUrl(url);
-        opts.method = 'GET';
-
-        for(var k in options) {
-            opts[k] = options[k];
+    this.init = function (url, options = null) {
+        var h = null;
+        if (options) {
+            h = http2.connect(url, options);
+        } else {
+            h = http2.connect(url);
         }
 
-        var h = (opts.protocol === 'https:') ? https : http;
-        return new Promise((rv, rj) => {
-            h.get(url, opts, (res) => {
-
-                let error = null;
-                if (res.statusCode !== 200) {
-                    error = new Error(
-                            `request failed, status code:${res.statusCode}`);
-                }
-
-                if (error) {
-                    res.resume();
-                    rj(error);
-                }
-
-                res.setEncoding(encoding);
-                var get_data = '';
-
-                res.on('data', (data) => {
-                    if (options.onData !== undefined && typeof options.onData === 'function') {
-                        options.onData(data);
-                    }
-
-                    get_data += data.toString(encoding);
-                });
-
-                res.on('end', () => {
-                    rv(get_data);
-                });
-
-                res.on('error', (err) => {
-                    get_data = '';
-                    rj(err);
-                });
-
-            }).on('error', (err) => {
-                rj(err);
-            });
+        h.on('error', (err) => {
+            console.log(err);
+            h.close();
+        });
+        h.on('frameError', (err) => {
+            console.log(err);
         });
 
-    };
-
-    /*
-        options = {
-            data,
-            headers,
-            encoding,
-            onData
-        }
-    */
-
-    this.post = function(url, options = {}) {
-        options.method = 'POST';
-        return the.request(url, options);
-    };
-
-    this.put = function(url, options = {}) {
-        options.method = 'PUT';
-        return the.request(url, options);
-    };
-
-    this.delete = function(url, options = {}) {
-        options.method = 'DELETE';
-        return the.request(url, options);
-    };
-
-    this.request = function(url, options) {
-        if (options.encoding === undefined) {
-            options.encoding = 'utf8';
-        }
-
-        var opts = this.parseUrl(url);
-        var h = (opts.protocol === 'https:') ? https : http;
-        opts.method = options.method;
-        opts.headers = {
-            'content-type'  : 'application/x-www-form-urlencoded',
+        var ht = {
+            session : h,
         };
-
-        if (options.headers !== undefined) {
-            for(var k in options.headers) {
-                opts.headers[k] = options.headers[k];
+        /*
+            opts
+                encoding
+                data
+                timeout
+                request_options : <clienthttp2session.request's options>
+        */
+        h.parsedHeaders = this.parseUrl(url);
+        h.startReq = function (opts, callback = null) {
+            var headers = {};
+            for (var k in h.parsedHeaders) {
+                headers[k] = h.parsedHeaders[k];
             }
-        }
-        var post_data = '';
-        if (options.data) {
-            if (opts.headers['content-type'] === 'application/x-www-form-urlencoded') {
-                post_data = qs.stringify(options.data);
-            } else {
-                if (typeof options.data === 'object') {
-                    post_data = JSON.stringify(options.data);
+
+            if (opts.headers && typeof opts.headers === 'object') {
+                for (var k in opts.headers) {
+                    headers[k] = opts.headers[k];
+                }
+            }
+
+            if (opts.method && the.methodList.indexOf(opts.method) >= 0) {
+                headers[':method'] = opts.method;
+            }
+
+            var method = headers[':method'];
+            if (method == 'PUT' || method == 'POST') {
+                if (opts.data === undefined) {
+                    throw new Error('PUT/POST must with body data');
+                }
+            }
+
+            var bodyData = '';
+            var upload_data = {};
+
+            if (method == 'POST' || method == 'PUT' || method == 'DELETE') {
+                if (headers['content-type'] === undefined) {
+                    headers['content-type'] = 'application/x-www-form-urlencoded';
+                }
+                if (headers['content-type'] == 'application/x-www-form-urlencoded') {
+                    bodyData = Buffer.from(qs.stringify(opts.data)).toString('binary');
+                    headers['content-length'] = bodyData.length;
+                } else if (h.parsedHeaders['content-type'] === 'multipart/form-data') {
+                    if (opts.data.files) {
+                        upload_data.files = the.preLoadFiles(opts.data.files);
+                    }
+                    if (opts.data.form) {
+                        upload_data.formdata = opts.data.form;
+                    }
+                    bodyData = the.makeUploadData(upload_data);
+                    headers['content-type'] = bodyData['content-type'];
+                    headers['content-length'] = bodyData['content-length'];
+                    bodyData = bodyData['data'];
+                    upload_data = {};
                 } else {
-                    post_data = options.data;
+                    bodyData = Buffer.from(JSON.stringify(opts.data)).toString('binary');
+                    headers['content-length'] = bodyData.length;
                 }
             }
-            opts.headers['content-length'] = Buffer.byteLength(post_data);
-        }
-
-        for(var k in options) {
-            if (k!='data' && k!='headers') {
-                opts[k] = options[k];
+            
+            var reqstream;
+            if (opts.request_options) {
+                reqstream = h.request(headers, opts.request_options);
+            } else {
+                reqstream = h.request(headers);
             }
-        }
-        
-        return new Promise ((rv, rj) => {
-            var r = h.request(opts, (res) => {
-                var res_data = '';
 
-                res.setEncoding(options.encoding);
-                res.on('data', (data) => {
-                    if (options.onData !== undefined && typeof options.onData === 'function') {
-                        options.onData(data);
+            if (opts.timeout) {
+                reqstream.setTimeout(opts.timeout);
+            }
+
+            var retData = '';
+            reqstream.on('error', (err) => {
+                console.log(err);
+                reqstream.close(http2.constants.NGHTTP2_INTERNAL_ERROR);
+            });
+            reqstream.on('frameError', (err) => {
+                console.log(err);
+                reqstream.close(http2.constants.NGHTTP2_INTERNAL_ERROR);
+            });
+
+            if (typeof callback === 'function') {
+                reqstream.on('data', (data) => {
+                    retData += data;
+                });
+                reqstream.on('end', () => {
+                    callback(retData);
+                });
+            }
+
+            if (opts.events) {
+                for(let e in opts.events) {
+                    if (typeof opts.events[e] === 'function') {
+                        reqstream.on(e, opts.events[e]);
                     }
-                    
-                    res_data += data.toString(options.encoding);
-                });
-
-                res.on('end', () => {
-                    rv(res_data);
-                });
-
-                res.on('error', (err) => {
-                    rj(err);
-                });
-            });
-
-            r.on('error', (e) => {
-                rj(e);
-            });
-
-            if (post_data) {
-                r.write(post_data);
+                }
             }
-            r.end();
-        });
+
+            reqstream.run = function() {
+                return reqstream;
+            };
+
+            if (bodyData.length > 0) {
+                reqstream.run = function() {
+                    reqstream.write(bodyData, 'binary');
+                    return reqstream;
+                };
+            }
+
+            return reqstream;
+        };
+
+        ht.simpleRequest = async function(opts) {
+            return new Promise((rv, rj) => {
+                var t = h.startReq(opts).run();
+                t.on('error', (err) => {
+                    rj({data : null, error : err});
+                });
+                t.on('frameError', (err) => {
+                    rj({data : null, error : err});
+                });
+
+                var retData = '';
+
+                t.on('data', (data) => {
+                    retData += data.toString(opts.encoding || 'utf8');
+                });
+
+                t.on('end', () => {
+                    h.close();
+                    rv({data:retData, error:null});
+                });
+            });
+        };
+
+        ht.get = async function(opts = {method : 'GET', timeout:35000}) {
+            return ht.simpleRequest(opts);
+        };
+
+        ht.post = async function(opts = {}) {
+            opts.method = 'POST';
+            return ht.simpleRequest(opts);
+        };
+
+        ht.put = async function(opts = {}) {
+            opts.method = 'PUT';
+            return ht.simpleRequest();
+        };
+
+        ht.delete = async function(opts={}) {
+            opts.method = 'DELETE';
+            return ht.simpleRequest(opts);
+        };
+
+        ht.upload = async function(opts = {}) {
+            if (opts.method === undefined) {
+                opts.method = 'POST';
+            }
+            return ht.simpleRequest(opts);
+        };
+
+        ht.download = async function() {
+
+        };
+
+        return ht;
     };
 
     /*
-        fields = {
-            file            : FILE PATH,
-            upload_name     : FILE INDEX NAME,
-            form            : FORM DATA,
+        options : {
+            files : [
+                {
+                    upload_name,
+                    filename,
+                    content-type,
+                    data
+                },
+            ],
+
+            formdata : {
+
+            },
         }
     */
-    this.upload = function(url, fields) {
-        var opts = this.parseUrl(url);
-        var h = (opts.protocol === 'https:') ? https : http ;
+    this.makeUploadData = function(r) {
+        var bdy = this.boundary();
 
-        opts.method = 'POST';
-        opts.headers = {
-            'content-type'  : 'multipart/form-data; '
+        var formData = '';
+        if (r.formdata !== undefined) {
+            if (typeof r.formdata === 'object') {
+                for (var k in r.formdata) {
+                    formData += `\r\n--${bdy}\r\nContent-Disposition: form-data; name=${'"'}${k}${'"'}\r\n\r\n${r.formdata[k]}`;
+                }
+            }
+        }
+
+        var header_data = '';
+        var payload = '';
+        var body_data = Buffer.from(formData).toString('binary');
+        var content_length = Buffer.byteLength(formData);
+
+        if (r.files && r.files instanceof Array) {
+            for (var i=0; i<r.files.length; i++) {
+                header_data = `Content-Disposition: form-data; name=${'"'}${r.files[i].upload_name}${'"'}; filename=${'"'}${r.files[i].filename}${'"'}\r\nContent-Type: ${r.files[i].content_type}`;
+
+                payload = `\r\n--${bdy}\r\n${header_data}\r\n\r\n`;
+
+                content_length += Buffer.byteLength(payload) + r.files[i].data.length;
+                body_data += Buffer.from(payload).toString('binary') + r.files[i].data;
+            }
+        }
+
+        var end_data = `\r\n--${bdy}--\r\n`;
+        content_length += Buffer.byteLength(end_data);
+        body_data += Buffer.from(end_data).toString('binary');
+
+        return {
+            'content-type' : `multipart/form-data; boundary=${bdy}`,
+            'body-data' : body_data,
+            'content-length' : content_length
         };
-       
-        return new Promise((rv, rj) => {
-            if (fields.file === undefined) {
-                rj(new Error('file not found'));
-            } else {
+
+    };
+
+    /*
+        {
+            "UPLOAD_NAME" : [
+                FILE_LIST
+            ]
+        }
+    */
+
+    this.preLoadFiles = function(files) {
+        console.log(files);
+        var file_count = 0;
+        var total_size = 0;
+
+        var files_data = [];
+        var filename = '';
+        var name_split = null;
+        var content_type = '';
+
+        for (var k in files) {
+            for (var i=0; i<files[k].length; i++) {
+                if (file_count >= the.max_upload_limit) {
+                    throw new Error('too many files, max limit:' + the.max_upload_limit);
+                }
+
+                if (total_size >= the.max_upload_size) {
+                    throw new Error('too large data, max size:' + the.max_upload_size);
+                }
+
                 try {
-                    fs.accessSync(fields.file, fs.constants.F_OK|fs.constants.R_OK);
-                    
-                    var name_split = fields.file.split('/').filter(p => p.length > 0);
-                    var filename   = name_split[name_split.length - 1];
-                    var mime_type  = this.mimeType(filename);
-
-                    fs.readFile(fields.file, (err, data) => {
-                        if (err) {
-                            rj(err);
-                        } else {
-                            var retdata = {
-                                data        : data.toString('binary'),
-                                options     : opts,
-                                filename    : filename,
-                                pathname    : fields.file,
-                                name        : fields.upload_name,
-                                httpr       : h,
-                                mime_type   : mime_type
-                            };
-                            if (fields.form !== undefined) {
-                                retdata.formdata = fields.form;
-                            }
-
-                            rv(retdata);
-                        }
+                    filename = files[k][i];
+                    name_split = filename.split('/').filter(p => p.length > 0);
+                    content_type = the.mimeType(name_split[name_split.length - 1]);
+                    var data = fs.readFileSync(filename, {encoding:'binary'});
+                    files_data.push({
+                        'upload_name' : k,
+                        'content-type' : content_type,
+                        'filename' : name_split[name_split.length - 1],
+                        'data' : data
                     });
-                } catch (err) {
-                    rj(err);
-                }
-            }
-
-        }).then((r) => {
-            var bdy = this.boundary();
-
-            var formData = '';
-            if (r.formdata !== undefined) {
-                if (typeof r.formdata === 'object') {
-                    for (var k in r.formdata) {
-                        formData += `\r\n--${bdy}\r\nContent-Disposition: form-data; name=${'"'}${k}${'"'}\r\n\r\n${r.formdata[k]}`;
+                    file_count += 1;
+                    total_size += data.length;
+                    if (data.length > the.max_file_size) {
+                        throw new Error('too large file, max file size:' + the.max_file_size);
                     }
+                } catch (err) {
+                    console.log(err);
+                    file_count -= 1;
                 }
             }
+        }
 
-            var header_data = `Content-Disposition: form-data; name=${'"'}${r.name}${'"'}; filename=${'"'}${r.filename}${'"'}\r\nContent-Type: ${r.mime_type}`;
-            var payload = `\r\n--${bdy}\r\n${header_data}\r\n\r\n`;
-            var end_data = `\r\n--${bdy}--\r\n`;
-            r.options.headers['content-type'] += `boundary=${bdy}`;
-            r.options.headers['content-length'] = Buffer.byteLength(payload) + Buffer.byteLength(end_data) + fs.statSync(r.pathname).size + Buffer.byteLength(formData);
-
-            return new Promise((rv, rj) => {
-                var http_request = r.httpr.request(r.options, (res) => {
-                    var ret_data = '';
-                    res.setEncoding('utf8');
-
-                    res.on('data', (data) => {
-                        ret_data += data;
-                    });
-
-                    res.on('end', () => {
-                        rv({
-                            err : null,
-                            data : ret_data
-                        });
-                    });
-                });
-
-                http_request.on('error', (err) => {
-                    rv({
-                        err : err,
-                        data : null
-                    });
-                });
-
-                if (formData.length > 0) {
-                    http_request.write(formData);
-                }
-                http_request.write(payload);
-
-                var fstream = fs.createReadStream(r.pathname, {bufferSize : 4096});
-                fstream.pipe(http_request, {end :false});
-                fstream.on('end', () => {
-                    http_request.end(end_data);
-                });
-            });
-            
-        }, (err) => {
-            throw err;
-        });
+        return files_data;
     };
 
     this.boundary = function() {

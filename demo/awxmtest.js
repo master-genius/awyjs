@@ -1,6 +1,6 @@
-const awy2 = require('../awy2.js');
+const awxm = require('../awxm.js');
 
-var ant = new awy2();
+var ant = new awxm();
 
 ant.config.https_on = true;
 ant.config.https_options.cert = '../rsa/localhost-cert.pem';
@@ -22,48 +22,56 @@ api.add(async (rr, next) => {
 });
 
 api.get('/x', async rr => {
-    rr.res.Body = 'Helo';
+    rr.res.data = 'Helo';
 });
 
 ant.add(async (rr, next) => {
-    console.log(process.pid);
     await next(rr);
 });
 
 ant.get('/', async rr => {
     console.log(rr.headers);
-    rr.res.Body = 'success';
+    rr.res.data = 'success';
 });
 
 ant.post('/upload', async rr => {
 
-    var f = rr.req.GetFile('image');
+    console.log(rr.bodyparam);
+
+    console.log(rr.files.file);
+
+    var f = rr.getFile('image');
     if (!f) {
-        rr.res.Body = 'file not found';
+        rr.res.data = 'file not found';
         return ;
     }
 
-    await rr.req.MoveFile(f, {
+    await rr.moveFile(rr.getFile('file'), {
+        path : '../upload/images'
+    });
+
+    await rr.moveFile(f, {
         path : '../upload/images'
     }).then(data => {
-        rr.res.Body = data;
+        rr.res.data = data;
     }, err => {
-        rr.res.Body = 'failed';
+        rr.res.data = 'failed';
     });
+
 });
 
 ant.post('/pt', async rr => {
-    console.log(rr.req.BodyParam);
-    rr.res.Body = 'ok';
+    console.log(rr.bodyparam);
+    rr.res.data = 'ok';
 });
 
 ant.map(['GET','POST'], '/rs/:id', async rr => {
-    if (rr.req.method === 'GET') {
-        rr.res.Body = rr.req.Args;
+    if (rr.method === 'GET') {
+        rr.res.data = rr.args;
     } else {
-        console.log(rr.req.Args);
-        rr.res.Body = rr.req.RawBody;
+        console.log(rr.args);
+        rr.res.data = rr.rawBody;
     }
 });
 
-ant.run('localhost', 2020);
+ant.run('localhost', 2021);
