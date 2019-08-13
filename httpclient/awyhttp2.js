@@ -1,5 +1,5 @@
-const http = require('http');
-const https = require('https');
+/* const http = require('http');
+const https = require('https'); */
 const http2 = require('http2');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -68,44 +68,14 @@ module.exports = new function() {
         }
         return this.default_mime;
     };
-/* 
-    this.parseUrl = function(url) {
-        var u = new urlparse.URL(url);
 
-        var opts = {
-            protocol    : u.protocol,
-            host        : u.host,
-            hostname    : u.hostname,
-            port        : u.port,
-            path        : u.pathname,
-            method      : '',
-            search      : u.search,
-            headers     : {
-            
-            },
-            href : u.href,
-            searchParams : u.searchParams,
-            origin : u.origin
-        };
-        if (u.search.length > 0) {
-            opts.path += u.search;
-        }
-
-        if (u.protocol === 'https:') {
-            opts.requestCert = false;
-            opts.rejectUnauthorized = false;
-        }
-
-        return opts;
-    };
- */
     this.methodList = ['GET','POST','PUT','DELETE','OPTIONS'];
 
     this.parseUrl = function (url, options = {}) {
         var urlobj = new urlparse.URL(url);
         var headers = {
             ':method' : 'GET',
-            ':path': urlobj.path+urlobj.search,
+            ':path': urlobj.pathname+urlobj.search,
         };
 
         if (options.method && this.methodList.indexOf(options.method) >= 0) {
@@ -117,10 +87,13 @@ module.exports = new function() {
             }
         }
 
-        return headers;
+        return {
+            url : urlobj,
+            headers:headers
+        };
     };
 
-    this.init = function (url, options = null) {
+    this.initConn = function (url, options = null) {
         var h = null;
         if (options) {
             h = http2.connect(url, options);
@@ -136,21 +109,34 @@ module.exports = new function() {
             console.log(err);
         });
 
-        var ht = {
-            session : h,
+        return h;
+    };
+
+    this.init = function (url, conn_options=null) {
+        var ht = {};
+        var parseurl = this.parseUrl(url);
+        ht.headers = parseurl.headers;
+        ht.url = parseurl.url;
+        ht.host = 'https://' + ht.url.host;
+        ht.tmp_headers = {};
+        ht.bodyData = '';
+
+        ht.session = the.initConn(ht.host, conn_options);
+
+        ht.close = function () {
+            if (ht.session && !ht.session.closed) {
+                ht.session.close();
+            }
         };
-        /*
-            opts
-                encoding
-                data
-                timeout
-                request_options : <clienthttp2session.request's options>
-        */
-        h.parsedHeaders = this.parseUrl(url);
-        h.startReq = function (opts, callback = null) {
+
+        ht.payload = async function (opts) {
             var headers = {};
-            for (var k in h.parsedHeaders) {
-                headers[k] = h.parsedHeaders[k];
+            for (var k in ht.headers) {
+                headers[k] = ht.headers[k];
+            }
+
+            if (opts.path) {
+                headers[':path'] = opts.path;
             }
 
             if (opts.headers && typeof opts.headers === 'object') {
@@ -170,94 +156,88 @@ module.exports = new function() {
                 }
             }
 
-            var bodyData = '';
-            var upload_data = {};
-
-            if (method == 'POST' || method == 'PUT' || method == 'DELETE') {
+            if (method == 'POST' 
+                || method == 'PUT' 
+                || (method == 'DELETE' && opts.data)
+            ) {
+                ht.bodyData = '';
                 if (headers['content-type'] === undefined) {
                     headers['content-type'] = 'application/x-www-form-urlencoded';
+                    if (typeof opts.data === 'string') {
+                        headers['content-type'] = 'text/plain';
+                    }
                 }
+
                 if (headers['content-type'] == 'application/x-www-form-urlencoded') {
-                    bodyData = Buffer.from(qs.stringify(opts.data)).toString('binary');
-                    headers['content-length'] = bodyData.length;
-                } else if (h.parsedHeaders['content-type'] === 'multipart/form-data') {
+                    
+                    ht.bodyData = Buffer.from(qs.stringify(opts.data)).toString('binary');
+                    headers['content-length'] = ht.bodyData.length;
+
+                } else if (headers['content-type'] === 'multipart/form-data') {
+                    var upload_data = {};
                     if (opts.data.files) {
                         upload_data.files = the.preLoadFiles(opts.data.files);
                     }
                     if (opts.data.form) {
                         upload_data.formdata = opts.data.form;
                     }
-                    bodyData = the.makeUploadData(upload_data);
-                    headers['content-type'] = bodyData['content-type'];
-                    headers['content-length'] = bodyData['content-length'];
-                    bodyData = bodyData['data'];
+                    ht.bodyData = the.makeUploadData(upload_data);
+                    headers['content-type'] = ht.bodyData['content-type'];
+                    headers['content-length'] = ht.bodyData['content-length'];
+                    ht.bodyData = ht.bodyData['body-data'];
                     upload_data = {};
                 } else {
-                    bodyData = Buffer.from(JSON.stringify(opts.data)).toString('binary');
-                    headers['content-length'] = bodyData.length;
+                    ht.bodyData = Buffer.from(
+                            typeof opts.data === 'object' 
+                            ? JSON.stringify(opts.data) 
+                            : opts.data
+                        ).toString('binary');
+                    headers['content-length'] = ht.bodyData.length;
                 }
             }
+
+            ht.tmp_headers = headers;
+        };
+
+        ht.reqStream = function(opts) {
             
-            var reqstream;
+            ht.payload(opts);
+
+            //console.log(ht.host,ht.headers, ht.tmp_headers);
+
             if (opts.request_options) {
-                reqstream = h.request(headers, opts.request_options);
+                ht.stream = ht.session.request(ht.tmp_headers, opts.request_options);
             } else {
-                reqstream = h.request(headers);
+                ht.stream = ht.session.request(ht.tmp_headers);
             }
 
             if (opts.timeout) {
-                reqstream.setTimeout(opts.timeout);
+                ht.stream.setTimeout(opts.timeout);
             }
 
-            var retData = '';
-            reqstream.on('error', (err) => {
-                console.log(err);
-                reqstream.close(http2.constants.NGHTTP2_INTERNAL_ERROR);
-            });
-            reqstream.on('frameError', (err) => {
-                console.log(err);
-                reqstream.close(http2.constants.NGHTTP2_INTERNAL_ERROR);
-            });
-
-            if (typeof callback === 'function') {
-                reqstream.on('data', (data) => {
-                    retData += data;
-                });
-                reqstream.on('end', () => {
-                    callback(retData);
-                });
-            }
-
-            if (opts.events) {
-                for(let e in opts.events) {
-                    if (typeof opts.events[e] === 'function') {
-                        reqstream.on(e, opts.events[e]);
-                    }
+            ht.stream.on('end', () => {
+                if (opts.end) {
+                    ht.session.close();
                 }
-            }
-
-            reqstream.run = function() {
-                return reqstream;
-            };
-
-            if (bodyData.length > 0) {
-                reqstream.run = function() {
-                    reqstream.write(bodyData, 'binary');
-                    return reqstream;
-                };
-            }
-
-            return reqstream;
+                //ht.stream.close();
+            });
+            
+            return ht.stream;
         };
 
-        ht.simpleRequest = async function(opts) {
+        ht.request = async function(opts) {
             return new Promise((rv, rj) => {
-                var t = h.startReq(opts).run();
+                if (ht.session === null || ht.session.closed) {
+                    ht.session = the.initConn(ht.host, conn_options);
+                }
+                var t = ht.reqStream(opts);
                 t.on('error', (err) => {
-                    rj({data : null, error : err});
+                    t.close();
+                    rj(err);
                 });
                 t.on('frameError', (err) => {
-                    rj({data : null, error : err});
+                    t.close();
+                    rj(err);
                 });
 
                 var retData = '';
@@ -267,39 +247,74 @@ module.exports = new function() {
                 });
 
                 t.on('end', () => {
-                    h.close();
-                    rv({data:retData, error:null});
+                    if (opts.endSession) {
+                        ht.session.close();
+                    }
+                    rv(retData);
                 });
+
+                if (opts.events && typeof opts.events === 'object') {
+                    for(let x in opts.events) {
+                        if (x === 'error' || x === 'frameError') {
+                            continue;
+                        }
+                        if (typeof opts.events[x] === 'function') {
+                            t.on(x, opts.events[x]);
+                        }
+                    }
+                }
+
+                if (ht.bodyData.length > 0 
+                    && (ht.tmp_headers[':method'] == 'POST'
+                        || ht.tmp_headers[':method'] == 'DELETE'
+                        || ht.tmp_headers[':method'] == 'PUT'
+                    )
+                ) {
+                    //t.write(ht.bodyData, 'binary');
+                    t.end(ht.bodyData, 'binary');
+                }
+            })
+            .then((r) => {
+                return r;
+            }, (err) => {
+                throw err;
             });
         };
 
         ht.get = async function(opts = {method : 'GET', timeout:35000}) {
-            return ht.simpleRequest(opts);
+            return ht.request(opts);
         };
 
         ht.post = async function(opts = {}) {
             opts.method = 'POST';
-            return ht.simpleRequest(opts);
+            return ht.request(opts);
         };
 
         ht.put = async function(opts = {}) {
             opts.method = 'PUT';
-            return ht.simpleRequest();
+            return ht.request();
         };
 
         ht.delete = async function(opts={}) {
             opts.method = 'DELETE';
-            return ht.simpleRequest(opts);
+            return ht.request(opts);
         };
 
         ht.upload = async function(opts = {}) {
             if (opts.method === undefined) {
                 opts.method = 'POST';
             }
-            return ht.simpleRequest(opts);
+            if (opts.method !== 'POST' && opts.method !== 'PUT') {
+                throw new Error('method not be allowed');
+            }
+            if (!opts.headers) {
+                opts.headers = {};
+            }
+            opts.headers['content-type'] = 'multipart/form-data';
+            return ht.request(opts);
         };
 
-        ht.download = async function() {
+        ht.download = function(opts = {}) {
 
         };
 
@@ -412,7 +427,6 @@ module.exports = new function() {
                 }
             }
         }
-
         return files_data;
     };
 

@@ -2,17 +2,19 @@ const awxm = require('../awxm.js');
 
 var ant = new awxm();
 
-ant.config.https_on = true;
-ant.config.https_options.cert = '../rsa/localhost-cert.pem';
-ant.config.https_options.key = '../rsa/localhost-privkey.pem';
+var {router, group} = ant;
 
-ant.config.parse_upload = true;
-ant.config.body_max_size = 6000000;
+//ant.config.daemon = true;
+ant.config.https_on = true;
+ant.config.cert = '../rsa/localhost-cert.pem';
+ant.config.key = '../rsa/localhost-privkey.pem';
+
+ant.config.body_max_size = 600000000;
 ant.config.log_type = 'stdio';
 ant.config.auto_options = true;
 ant.config.cors = '*';
 
-var api = ant.group('/api');
+var api = group('/api');
 
 api.add(async (rr, next) => {
     console.log('middleware in group api.');
@@ -22,50 +24,67 @@ api.add(async (rr, next) => {
 });
 
 api.get('/x', async rr => {
-    rr.res.data = 'Helo';
+    rr.res.write('Helo');
 });
 
 ant.add(async (rr, next) => {
     await next(rr);
 });
 
-ant.get('/', async rr => {
+router.get('/', async rr => {
     console.log(rr.headers);
     rr.res.data = 'success';
 });
 
-ant.post('/upload', async rr => {
+router.get('/name', async rr => {
+    rr.res.data = rr.name;
+}, 'test-name');
 
-    console.log(rr.bodyparam);
-
-    console.log(rr.files.file);
+router.post('/upload', async rr => {
 
     var f = rr.getFile('image');
-    if (!f) {
-        rr.res.data = 'file not found';
-        return ;
+    if (f) {
+        //rr.res.data = 'file not found';
+        //rr.res.status = 500;
+        //return ;
+        await rr.moveFile(f, {
+            path : '../upload/images'
+        }).then(data => {
+            rr.res.write(JSON.stringify(data));
+        }, err => {
+            rr.res.write('failed upload image\n');
+        });
     }
 
     await rr.moveFile(rr.getFile('file'), {
         path : '../upload/images'
-    });
-
-    await rr.moveFile(f, {
-        path : '../upload/images'
     }).then(data => {
-        rr.res.data = data;
+        rr.res.write(JSON.stringify(data));
     }, err => {
-        rr.res.data = 'failed';
+        rr.res.write('failed upload file\n');
     });
 
+    var vlist = rr.getFile('video', -1);
+
+    for(var i=0; i<vlist.length; i++) {
+        await rr.moveFile(vlist[i], {
+            path : '../upload/images'
+        })
+        .then(data => {
+            rr.res.write(JSON.stringify(data));
+        }, err => {
+            rr.res.write('failed upload video\n');
+        });
+    }
+
 });
 
-ant.post('/pt', async rr => {
+router.post('/pt', async rr => {
     console.log(rr.bodyparam);
-    rr.res.data = 'ok';
+    rr.res.data = rr.bodyparam;
 });
 
-ant.map(['GET','POST'], '/rs/:id', async rr => {
+router.map(['GET','POST'], '/rs/:id', async rr => {
     if (rr.method === 'GET') {
         rr.res.data = rr.args;
     } else {
@@ -74,4 +93,8 @@ ant.map(['GET','POST'], '/rs/:id', async rr => {
     }
 });
 
-ant.run('localhost', 2021);
+router.get('/ctx-test', async rr => {
+    rr.res.data = 'ok';
+});
+
+var h = ant.ants('localhost', 2021, 2);

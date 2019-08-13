@@ -50,27 +50,10 @@ module.exports = function () {
         https_on        : false,
 
         //HTTPS密钥和证书的路径
-        key     : '',
-        cert    : '',
-
-        //服务器选项，参考http2.createSecureServer
-        server_options : {
-            peerMaxConcurrentStreams : 100,
-        }
-    };
-
-    this.limit = {
-        /**
-         * 限制最大连接数，如果设置为0表示不限制
-         */
-        max_conn : 1024,
-    };
-
-    /**
-     * 记录当前的运行情况
-     */
-    this.rundata = {
-        cur_conn : 0,
+        https_options   : {
+            key     : '',
+            cert    : ''
+        },
     };
 
     this.helper = {};
@@ -92,40 +75,30 @@ module.exports = function () {
         hash.update(org_name);
         return hash.digest('hex') + '.' + the.helper.extName(filename);
     };
-    
-    this.helper.moveFile = function (upf, options) {
-        if (!options.filename) {
-            options.filename = the.helper.genFileName(upf.filename);
-        }
 
-        var target = options.path + '/' + options.filename;
-        
-        return new Promise((rv, rj) => {
-            fs.writeFile(target, upf.data, {encoding : 'binary'}, err => {
-                if (err) {
-                    rj(err);
-                } else {
-                    rv({
-                        filename : options.filename,
-                        target : target,
-                        oldname : upf.filename
-                    });
-                }
-            });
-        });
+    //这个实现依赖于this的动态指向
+    this.helper.getFile = function (name, ind) {
+        if (this.files[name] === undefined) {
+            return null;
+        }
+        if (ind < 0 || ind >= this.files[name].length) {
+            return null;
+        }
+        return this.files[name][ind];
     };
 
+    this.helper.
 
     /*
         上下文
     */
+
     this.context = function () {
         var ctx = {
             method      : '',
             //实际的访问路径
             path        : '',
-            name        : '',
-            headers     : {},
+            headers  : {},
             //实际执行请求的路径
             routepath   : '/',
             args        : {},
@@ -148,49 +121,46 @@ module.exports = function () {
                     ':status' : 200,
                     'content-type' : 'text/html;charset=utf-8'
                 },
-                data : '',
-                encoding : 'utf8',
+                data : ''
             },
 
-            keys : {},
+            keys : {}
         };
 
         ctx.getFile = function(name, ind = 0) {
-            if (ind < 0) {
-                return ctx.files[name] || [];
-            }
-
             if (ctx.files[name] === undefined) {
                 return null;
             }
-            
-            if (ind >= ctx.files[name].length) {
+            if (ind < 0 || ind >= ctx.files[name].length) {
                 return null;
             }
+            ctx.files[name][ind].data = ctx.rawBody.substring(
+                    ctx.files[name][ind].start_index, 
+                    ctx.files[name][ind].end_index
+                );
             return ctx.files[name][ind];
         };
 
-        ctx.setHeaders = function(nobj, val = null) {
-            if (typeof nobj === 'string' && val != null) {
-                ctx.res.headers[nobj] = val;
-            } else if (typeof nobj === 'object') {
-                for(let k in nobj) {
-                    ctx.res.headers[k] = nobj[k];
-                }
+        ctx.moveFile = function (upf, options) {
+            if (!options.filename) {
+                options.filename = ctx.genFileName(upf.filename);
             }
-        };
 
-        ctx.res.write = function(data) {
-            if (typeof data === 'string') {
-                ctx.res.data += data;
-            } else if (data instanceof Buffer) {
-                ctx.res.data += data.toString(ctx.res.encoding);
-            } else if (typeof data === 'number') {
-                ctx.res.data += data.toString();
-            }
+            var target = options.path + '/' + options.filename;
+            
+            return new Promise((rv, rj) => {
+                fs.writeFile(target, upf.data, {encoding : 'binary'}, err => {
+                    if (err) {
+                        rj(err);
+                    } else {
+                        rv({
+                            filename : options.filename,
+                            target : target
+                        });
+                    }
+                });
+            });
         };
-
-        ctx.moveFile = the.helper.moveFile;
 
         return ctx;
     };
@@ -202,32 +172,30 @@ module.exports = function () {
         'DELETE': {},
         'OPTIONS': {}
     };
-
-    this.router = {};
     
-    this.router.get = function(api_path, callback, name='') {
-        the.addPath(api_path, 'GET', callback, name);
+    this.get = function(api_path, callback) {
+        this.addPath(api_path, 'GET', callback);
     };
 
-    this.router.post = function(api_path, callback, name='') {
-        the.addPath(api_path, 'POST', callback, name);
+    this.post = function(api_path, callback) {
+        this.addPath(api_path, 'POST', callback);
     };
 
-    this.router.put = function(api_path, callback, name='') {
-        the.addPath(api_path, 'PUT', callback, name);
+    this.put = function(api_path, callback) {
+        this.addPath(api_path, 'PUT', callback);
     };
 
-    this.router.delete = function(api_path, callback, name='') {
-        the.addPath(api_path, 'DELETE', callback, name);
+    this.delete = function(api_path, callback) {
+        this.addPath(api_path, 'DELETE', callback);
     };
 
-    this.router.any = function(api_path, callback, name='') {
-        the.map(['GET','POST','PUT','DELETE', 'OPTIONS'], api_path, callback, name);
+    this.any = function(api_path, callback) {
+        this.map(['GET','POST','PUT','DELETE'], api_path, callback);
     };
 
-    this.router.map = function(marr, api_path, callback, name='') {
+    this.map = function(marr, api_path, callback) {
         for(var i=0; i<marr.length; i++) {
-            the.addPath(api_path, marr[i], callback, name);
+            this.addPath(api_path, marr[i], callback);
         }
     };
 
@@ -237,13 +205,12 @@ module.exports = function () {
         比如：/static/*可以作为静态文件所在目录，但是后面的就直接作为*表示的路径，
         并不进行参数解析。
     */
-   this.addPath = function(api_path, method, callback, name = '') {
+   this.addPath = function(api_path, method, callback) {
         var add_req = {
                 isArgs:  false,
                 isStar:  false,
                 routeArr: [],
                 ReqCall: callback,
-                name : name
             };
 
         switch (method) {
@@ -391,7 +358,6 @@ module.exports = function () {
 
         var R = the.ApiTable[ctx.method][route_key];
         ctx.requestCall = R.ReqCall;
-        ctx.name = R.name;
         //用于分组检测
         ctx.group = '/' + R.routeArr[0];
 
@@ -420,38 +386,38 @@ module.exports = function () {
                 the.api_group_table[t.group_name][t.group_name+apath] = apath;
             };
 
-            t.get = function(apath, callback, name='') {
+            t.get = function(apath, callback) {
                 t.add_group_api(apath);
-                the.router.get(t.group_name+apath, callback, name);
+                the.get(t.group_name+apath, callback);
             };
 
-            t.post = function(apath, callback, name='') {
+            t.post = function(apath, callback) {
                 t.add_group_api(apath);
-                the.router.post(t.group_name+apath, callback, name);
+                the.post(t.group_name+apath, callback);
             };
 
-            t.delete = function(apath, callback, name='') {
+            t.delete = function(apath, callback) {
                 t.add_group_api(apath);
-                the.router.delete(t.group_name+apath, callback, name);
+                the.delete(t.group_name+apath, callback);
             };
 
-            t.options = function(apath, callback, name='') {
+            t.options = function(apath, callback) {
                 t.add_group_api(apath);
-                the.router.options(t.group_name+apath, callback, name);
+                the.options(t.group_name+apath, callback);
             };
 
-            t.any = function(apath, callback, name='') {
+            t.any = function(apath, callback) {
                 t.add_group_api(apath);
-                the.router.any(t.group_name+apath, callback, name);
-            };
-
-            t.map = function(marr, apath, callback, name='') {
-                t.add_group_api(apath);
-                the.router.map(marr, t.group_name+apath, callback, name);
+                the.any(t.group_name+apath, callback);
             };
 
             t.add = function(midcall, preg = null) {
                 the.add(midcall, preg, t.group_name);
+            };
+
+            t.map = function(marr, apath, callback) {
+                t.add_group_api(apath);
+                the.map(marr, t.group_name+apath, callback);
             };
         };
 
@@ -550,10 +516,6 @@ module.exports = function () {
 
         } catch (err) {
             console.log(err);
-            if (!ctx.stream.headersSent) {
-                ctx.res.headers[':status'] = 500;
-                ctx.stream.respond(ctx.res.headers);
-            }
             ctx.stream.close(http2.constants.NGHTTP2_INTERNAL_ERROR);
         }
     };
@@ -597,7 +559,7 @@ module.exports = function () {
                 break;
             }
             the.parseSingleFile(ctx, file_start, file_end);
-            file_start = file_end + bdy_crlf.length;
+            //file_start = file_end + bdy_crlf.length;
         }
     };
 
@@ -609,13 +571,7 @@ module.exports = function () {
                 'binary'
             ).toString('utf8');
         
-        var file_post = {
-            filename        : '',
-            'content-type'  : '',
-            data            : '',
-        };
-        
-        file_post.data = ctx.rawBody.substring(header_end_ind+4, end_ind);
+        var file_data = ctx.rawBody.substring(header_end_ind+4, end_ind);
 
         //parse header
         if (header_data.search("Content-Type") < 0) {
@@ -627,7 +583,7 @@ module.exports = function () {
                 if (tmp.search("name=") > -1) {
                     var name = tmp.split("=")[1].trim();
                     name = name.substring(1, name.length-1);
-                    ctx.bodyparam[name] = Buffer.from(file_post.data, 'binary').toString('utf8');
+                    ctx.bodyparam[name] = Buffer.from(file_data, 'binary').toString('utf8');
                     break;
                 }
             }
@@ -635,6 +591,11 @@ module.exports = function () {
             //file data
             var form_list = header_data.split("\r\n").filter(s => s.length > 0);
             var tmp_name = form_list[0].split(";");
+            var file_post = {
+                filename        : '',
+                'content-type'  : '',
+                data            : '',
+            };
 
             var name = '';
             for (var i=0; i<tmp_name.length; i++) {
@@ -648,11 +609,15 @@ module.exports = function () {
             }
 
             if (name == '') {
-                file_post.data = '';
+                file_data = '';
                 return ;
             }
 
             file_post['content-type'] = form_list[1].split(":")[1].trim();
+            file_post['data'] = file_data;
+            /* file_post['start_index'] = header_end_ind + 4;
+            file_post['end_index'] = end_ind;
+            file_post['size'] = end_ind - file_post['start_index']; */
             
             if (ctx.files[name] === undefined) {
                 ctx.files[name] = [file_post];
@@ -661,8 +626,6 @@ module.exports = function () {
             }
         }
     };
-
-    this.methodList = ['GET','POST','PUT','DELETE','OPTIONS'];
     
     this.reqHandler = function (stream, headers) {
         var ctx = the.context();
@@ -670,6 +633,9 @@ module.exports = function () {
         ctx.method = headers[':method'];
         ctx.headers = headers;
         ctx.stream = stream;
+
+        ctx.res.write = stream.write;
+        ctx.res.end = stream.end;
 
         if (ctx.method === 'POST' || ctx.method === 'PUT' || ctx.method === 'DELETE') {
             ctx.isUpload = the.checkUploadHeader(headers['content-type']);
@@ -682,67 +648,43 @@ module.exports = function () {
 
         ctx.path = get_params.pathname;
 
-        stream.on('frameError', (err) => {
-            stream.close(http2.constants.NGHTTP2_INTERNAL_ERROR);
-        });
         stream.on('error', (err) => {
             ctx.rawBody = '';
             stream.close(http2.constants.NGHTTP2_INTERNAL_ERROR);
         });
 
-        stream.on('aborted', () => {
-            if (stream && !stream.closed) {
-                stream.close(http2.constants.NGHTTP2_INTERNAL_ERROR);
-            }
+        stream.on('close', (err) => {
+            //console.log('closed');
         });
-
-        /* stream.on('close', (err) => {
-        }); */
 
         /*
             跨域资源共享标准新增了一组 HTTP 首部字段，允许服务器声明哪些源站通过浏览器有权限访问哪些资源。
-            并且规范要求，对那些可能会对服务器资源产生改变的请求方法，需要先发送OPTIONS请求获取是否允许跨域以及允许的方法。
+            并且规范要求，对那些可能会对服务器资源产生改变的请求方法，需要先发送OPTIONS请求获取是否允许跨域
+            以及允许的方法。
         */
 
-        if (the.methodList.indexOf(ctx.method) < 0) {
-            stream.respond({
-                ':status' : 405,
-                'Allow'   : the.methodList
-            });
-            stream.end('Method not allowed');
-            //stream.close();
-            return ;
-        }
-
-        if (ctx.method == 'GET' || ctx.method == 'OPTIONS') {
-            //应对恶意请求，请求类型不能携带主体数据，这时候如果有数据则立即关闭请求。
-            stream.on('data', (data) => {
-                stream.respond({
-                    ':status' : 400,
-                });
-                stream.close(http2.constants.NGHTTP2_REFUSED_STREAM);
-            });
-        }
-
         if (ctx.method == 'OPTIONS') {
+
             if (the.config.cors) {
-                ctx.res.setHeaders({
+                stream.respond({
                     ':status' : 200,
                     'Access-control-allow-origin'   : the.config.cors,
-                    'Access-control-allow-methods' : the.methodList
+                    'Access-control-allow-methods' : [
+                        'GET','POST','PUT','DELETE', 'OPTIONS'
+                    ]
                 });
+
             }
             if (the.config.auto_options) {
-                stream.respond(ctx.res.headers);
                 stream.end();
-                return ;
             } else {
                 return the.execRequest(ctx);
             }
         }
-        else if (ctx.method=='GET') {
+        else if (ctx.method=='GET'){
             return the.execRequest(ctx);
         } else if (ctx.method == 'POST' || ctx.method == 'PUT' || ctx.method == 'DELETE') {
+
             if (parseInt(headers['content-length']) > the.config.body_max_size) {
                 stream.respond({
                     ':status' : 413
@@ -750,11 +692,12 @@ module.exports = function () {
                 stream.end(
                     'Out of limit('+the.config.body_max_size+' Bytes)'
                 );
-                //stream.close();
+                stream.close();
                 return ;
             }
             
             stream.on('data',(data) => {
+
                 ctx.rawBody += data.toString('binary');
                 if (ctx.rawBody.length > the.config.body_max_size) {
                     ctx.rawBody = '';
@@ -765,8 +708,7 @@ module.exports = function () {
                     stream.end(
                         'Error: out of limit('+the.config.body_max_size+' Bytes)'
                     );
-                    //http2.constants.NGHTTP2_FRAME_SIZE_ERROR
-                    //stream.close();
+                    stream.close();
                 }
             });
         
@@ -789,23 +731,33 @@ module.exports = function () {
 
                 return the.execRequest(ctx);
             });
+
+        } else {
+            stream.respond({
+                ':status' : 405,
+                'Allow'   : ['GET','POST', 'PUT', 'DELETE', 'OPTIONS']
+            }, {
+                endStream : true
+            });
+            stream.end('Method not allowed');
+            stream.close();
         }
+
     };
 
     this.addFinalResponse = function() {
         var fr = async function(ctx, next) {
+            ctx.res.headers[':status'] = ctx.res.status;
+            
+            ctx.stream.respond(ctx.res.headers);
             await next(ctx);
-            if (!ctx.stream.headersSent) {
-                ctx.res.headers[':status'] = ctx.res.status;
-                ctx.stream.respond(ctx.res.headers);
-            }
             
             if (ctx.res.data === null || ctx.res.data === false) {
                 ctx.stream.end();
             } else if (typeof ctx.res.data === 'object') {
                 ctx.stream.end(JSON.stringify(ctx.res.data));
             } else if (typeof ctx.res.data === 'string') {
-                ctx.stream.end(ctx.res.data, ctx.res.encoding);
+                ctx.stream.end(ctx.res.data);
             } else {
                 ctx.stream.end();
             }
@@ -823,37 +775,24 @@ module.exports = function () {
         //添加最终的中间件
         this.addFinalResponse();
 
+        var opts = {};
         var serv = null;
         if (the.config.https_on) {
             try {
-                the.config.server_options.key  = fs.readFileSync(the.config.key);
-                the.config.server_options.cert = fs.readFileSync(the.config.cert);
-                serv = http2.createSecureServer(the.config.server_options);
+                opts = {
+                    key  : fs.readFileSync(the.config.https_options.key),
+                    cert : fs.readFileSync(the.config.https_options.cert)
+                };
+                serv = http2.createSecureServer(opts);
             } catch(err) {
                 console.log(err);
                 process.exit(-1);
             }
         } else {
-            serv = http2.createServer(the.config.server_options);
+            serv = http2.createServer();
         }
 
         serv.on('stream', the.reqHandler);
-
-        serv.on('session', (sess) => {
-            the.rundata.cur_conn += 1;
-            sess.on('close', () => {
-                the.rundata.cur_conn -= 1;
-            });
-            sess.on('error', (err) => {
-                sess.close();
-            });
-            sess.on('frameError', (err) => {
-                sess.close();
-            });
-            if (the.limit.max_conn > 0 && the.rundata.cur_conn > the.limit.max_conn) {
-                sess.close();
-            }
-        });
 
         serv.on('sessionError', (err, sess) => {
             //console.log(sess);
@@ -861,16 +800,11 @@ module.exports = function () {
             sess.close();
         });
 
-        serv.on('tlsClientError', (err, tls) => {
-            //console.log(err, tls);
-        });
-
-        serv.setTimeout(25000); //设置25秒超时
-
         for(let k in the.eventTable) {
             serv.on(evt, the.eventTable[evt]);
         }
 
+        serv.setTimeout(25000); //设置25秒超时
         serv.listen(port, host);
         return serv;
     };
@@ -922,7 +856,7 @@ module.exports = function () {
                     则把输出流重定向到文件。
                     但是在子进程处理请求仍然可以输出到终端。
                 */
-                /* if (the.config.log_type == 'file') {
+                if (the.config.log_type == 'file') {
                     if(typeof the.config.log_file === 'string'
                         && the.config.log_file.length > 0
                     ) {
@@ -941,7 +875,7 @@ module.exports = function () {
                           );
                         process.stderr.write = err_log.write.bind(err_log);
                     }
-                } */
+                }
 
                 /*
                     检测子进程数量，如果有子进程退出则fork出差值的子进程，
@@ -952,7 +886,7 @@ module.exports = function () {
                     for(var i=0; i<num_dis; i++) {
                         cluster.fork();
                     }
-                }, 2500);
+                }, 5000);
 
                 cluster.on('message', (worker, message, handle) => {
                     if(message.type === 'access') {

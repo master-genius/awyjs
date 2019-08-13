@@ -661,8 +661,6 @@ module.exports = function () {
             }
         }
     };
-
-    this.methodList = ['GET','POST','PUT','DELETE','OPTIONS'];
     
     this.reqHandler = function (stream, headers) {
         var ctx = the.context();
@@ -704,38 +702,22 @@ module.exports = function () {
             并且规范要求，对那些可能会对服务器资源产生改变的请求方法，需要先发送OPTIONS请求获取是否允许跨域以及允许的方法。
         */
 
-        if (the.methodList.indexOf(ctx.method) < 0) {
-            stream.respond({
-                ':status' : 405,
-                'Allow'   : the.methodList
-            });
-            stream.end('Method not allowed');
-            //stream.close();
-            return ;
-        }
-
-        if (ctx.method == 'GET' || ctx.method == 'OPTIONS') {
-            //应对恶意请求，请求类型不能携带主体数据，这时候如果有数据则立即关闭请求。
-            stream.on('data', (data) => {
-                stream.respond({
-                    ':status' : 400,
-                });
-                stream.close(http2.constants.NGHTTP2_REFUSED_STREAM);
-            });
-        }
+        
 
         if (ctx.method == 'OPTIONS') {
+
             if (the.config.cors) {
-                ctx.res.setHeaders({
+                stream.respond({
                     ':status' : 200,
                     'Access-control-allow-origin'   : the.config.cors,
-                    'Access-control-allow-methods' : the.methodList
+                    'Access-control-allow-methods' : [
+                        'GET','POST','PUT','DELETE', 'OPTIONS'
+                    ]
                 });
+
             }
             if (the.config.auto_options) {
-                stream.respond(ctx.res.headers);
                 stream.end();
-                return ;
             } else {
                 return the.execRequest(ctx);
             }
@@ -789,7 +771,18 @@ module.exports = function () {
 
                 return the.execRequest(ctx);
             });
+
+        } else {
+            stream.respond({
+                ':status' : 405,
+                'Allow'   : ['GET','POST', 'PUT', 'DELETE', 'OPTIONS']
+            }, {
+                endStream : true
+            });
+            stream.end('Method not allowed');
+            stream.close();
         }
+
     };
 
     this.addFinalResponse = function() {
