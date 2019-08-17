@@ -16,11 +16,11 @@ module.exports = new function() {
     //最大同时上传文件数量限制
     this.max_upload_limit = 10;
 
-    //上传文件最大数据量：2Gb
-    this.max_upload_size = 2147483648;
+    //上传文件最大数据量，JS限制最大字符串不能超过 1073741824
+    this.max_upload_size = 1073000000;
 
-    //单个文件最大上传大小：1Gb
-    this.max_file_size = 1073741824;
+    //单个文件最大上传大小
+    this.max_file_size = 220000000;
     
     this.mime_map = {
         'css'   : 'text/css',
@@ -200,11 +200,7 @@ module.exports = new function() {
         };
 
         ht.reqStream = function(opts) {
-            
             ht.payload(opts);
-
-            //console.log(ht.host,ht.headers, ht.tmp_headers);
-
             if (opts.request_options) {
                 ht.stream = ht.session.request(ht.tmp_headers, opts.request_options);
             } else {
@@ -239,11 +235,18 @@ module.exports = new function() {
                     t.close();
                     rj(err);
                 });
+                if (opts.onResponse && typeof opts.onResponse === 'function') {
+                    t.on('response', opts.onResponse);
+                }
 
                 var retData = '';
 
                 t.on('data', (data) => {
-                    retData += data.toString(opts.encoding || 'utf8');
+                    if (opts.writeStream) {
+                        opts.writeStream(data, opts.writeStreamEncoding || 'binary');
+                    } else {
+                        retData += data.toString(opts.encoding || 'utf8');
+                    }
                 });
 
                 t.on('end', () => {
@@ -314,8 +317,140 @@ module.exports = new function() {
             return ht.request(opts);
         };
 
-        ht.download = function(opts = {}) {
+        ht.download = async function(opts = {}) {
+            if (!opts.method) {
+                opts.method == 'GET';
+            }
+            if (opts.method!=='GET' && opts.method!=='POST' && opts.method=='PUT') {
+                throw new Error('method must be GET|POST|PUT');
+            }
+            var downStream = null;
+            if (opts.target) {
+                downStream = fs.createWriteStream(opts.target, {encoding:'binary'});
+            } else {
+                if (!opts.dir) {
+                    opts.dir = './';
+                } else if (opts.dir[opts.dir.length-1] !== '/'){
+                    opts.dir += '/';
+                }
+            }
 
+            if (opts.progress === undefined) {
+                opts.progress = true;
+            }
+            var filename = '';
+            var total_length = 0;
+            var sid = null;
+            return new Promise((rv, rj) => {
+                var t = ht.reqStream(opts);
+                t.on('error', (err) => {
+                    t.close();
+                    rj(err);
+                });
+                t.on('frameError', (err) => {
+                    t.close();
+                    rj(err);
+                });
+
+                t.on('response', (headers, flags) => {
+                    console.log(headers);
+                    if(headers['content-disposition']) {
+                        var name_split = headers['content-disposition'].split(';').filter(p => p.length > 0);
+            
+                        for(let i=0; i<name_split.length; i++) {
+                            if (name_split[i].indexOf('filename*=') >= 0) {
+                                filename = name_split[i].trim().substring(10);
+                                filename = filename.split('\'')[2];
+                                filename = decodeURIComponent(filename);
+                            } else if(name_split[i].indexOf('filename=') >= 0) {
+                                filename = name_split[i].trim().substring(9);
+                            }
+                        }
+    
+                    }
+
+                    if (!filename) {
+                        var nh = crypto.createHash('sha1');
+                        nh.update(`${(new Date()).getTime()}--`);
+                        filename = nh.digest('hex');
+                    }
+
+                    if (headers['content-length']) {
+                        total_length = parseInt(headers['content-length']);
+                    }
+
+                    if (downStream === null) {
+                        try {
+                            fs.accessSync(opts.dir+filename);
+                            filename = `${(new Date()).getTime()}-${filename}`;
+                        } catch(err){
+                        }
+                        downStream = fs.createWriteStream(
+                            opts.dir+filename,
+                            {encoding:'binary'}
+                        );
+                    }
+                });
+                
+
+                var progressCount = 0;
+                var retData = '';
+                var down_length = 0;
+                sid = setInterval(() => {progressCount+=1;}, 20);
+                t.on('data', (data) => {
+                    //console.log(data.toString());
+                    if (downStream === null) {
+                        retData += data.toString('binary');
+                        down_length = retData.length;
+                    } else {
+                        if (retData.length > 0) {
+                            downStream.write(retData, 'binary');
+                            retData = '';
+                        }
+                        down_length += data.length;
+                        downStream.write(data, 'binary');
+                    }
+                    if (opts.progress && total_length > 0) {
+                        if (down_length >= total_length) {
+                            console.clear();
+                            console.log('100.00%');
+                        }
+                        else if (progressCount > 25) {
+                          console.clear();
+                          console.log(`${((down_length/total_length)*100).toFixed(2)}%`);
+                          progressCount = 0;
+                        }
+                    }
+                });
+
+                t.on('end', () => {
+                    ht.session.close();
+                    rv();
+                });
+
+                if (ht.bodyData.length > 0 
+                    && (ht.tmp_headers[':method'] == 'POST'
+                        || ht.tmp_headers[':method'] == 'DELETE'
+                        || ht.tmp_headers[':method'] == 'PUT'
+                    )
+                ) {
+                    t.end(ht.bodyData, 'binary');
+                }
+            })
+            .then((r) => {
+                console.log('done');
+            }, (err) => {
+                throw err;
+            })
+            .catch(err => {
+                console.log(err);
+            })
+            .finally(() => {
+                if (downStream) {
+                    downStream.end();
+                }
+                clearInterval(sid);
+            });
         };
 
         return ht;
@@ -331,13 +466,12 @@ module.exports = new function() {
                     data
                 },
             ],
-
             formdata : {
 
             },
         }
     */
-    this.makeUploadData = function(r) {
+    this.makeUploadData = function (r) {
         var bdy = this.boundary();
 
         var formData = '';
@@ -374,7 +508,6 @@ module.exports = new function() {
             'body-data' : body_data,
             'content-length' : content_length
         };
-
     };
 
     /*
@@ -384,9 +517,7 @@ module.exports = new function() {
             ]
         }
     */
-
     this.preLoadFiles = function(files) {
-        console.log(files);
         var file_count = 0;
         var total_size = 0;
 
@@ -437,96 +568,4 @@ module.exports = new function() {
 
         return `----${bdy}`;
     };
-
-    /*
-        method : GET | POST,
-        data   : Object if method == POST,
-        target : FILE_PATH,
-        headers : {}
-    */
-    this.download = function(url, options) {
-
-        var data_stream = fs.createWriteStream(options.target, {encoding:'binary'});
-        if (options.encoding === undefined) {
-            options.encoding = 'binary';
-        }
-
-        var opts = this.parseUrl(url);
-        var h = (opts.protocol === 'https:') ? https : http;
-        opts.method = options.method;
-        if (opts.method === 'POST') {
-            opts.headers = {
-                'content-type'  : 'application/x-www-form-urlencoded',
-            };
-        }
-
-        if (options.headers !== undefined) {
-            for(var k in options.headers) {
-                opts.headers[k] = options.headers[k];
-            }
-        }
-
-        var post_data = '';
-        if (opts.method === 'POST') {
-            if (opts.headers['content-type'] === 'application/x-www-form-urlencoded') {
-                post_data = qs.stringify(options.data);
-            } else {
-                if (typeof options.data === 'object') {
-                    post_data = JSON.stringify(options.data);
-                } else {
-                    post_data = options.data;
-                }
-            }
-            
-            opts.headers['content-length'] = Buffer.byteLength(post_data);
-        }
-        
-        return new Promise ((rv, rj) => {
-            data_stream.on('error', (err) => {
-                r.destroy(err);
-            });
-
-            data_stream.on('finish', () => {
-                //rv(true);
-            });
-
-            var r = h.request(opts, (res) => {
-
-                let error = null;
-                if (res.statusCode !== 200) {
-                    error = new Error(
-                            `request failed, status code:${res.statusCode}`);
-                }
-
-                if (error) {
-                    res.resume();
-                    rj(error);
-                }
-
-                res.setEncoding(options.encoding);
-                res.on('data', (data) => {
-                    data_stream.write(Buffer.from(data, 'binary'));
-                });
-
-                res.on('end', () => {
-                    data_stream.end();
-                    rv(true);
-                });
-
-                res.on('error', (err) => {
-                    data_stream.end();
-                    rj(err);
-                });
-            });
-
-            r.on('error', (e) => {
-                rj(e);
-            });
-
-            r.write(post_data);
-            r.end();
-        });
-
-    };
-
 };

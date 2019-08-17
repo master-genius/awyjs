@@ -56,7 +56,10 @@ module.exports = function () {
         //服务器选项，参考http2.createSecureServer
         server_options : {
             peerMaxConcurrentStreams : 100,
-        }
+        },
+
+        //设置服务器超时，毫秒单位，在具体的请求中，可以通过stream设置具体请求的超时时间
+        timeout : 20000,
     };
 
     this.limit = {
@@ -117,7 +120,7 @@ module.exports = function () {
 
 
     /*
-        上下文
+        请求上下文
     */
     this.context = function () {
         var ctx = {
@@ -245,6 +248,21 @@ module.exports = function () {
                 ReqCall: callback,
                 name : name
             };
+        if (api_path.indexOf(':') >= 0) {
+            add_req.isArgs = true;
+        }
+        if (api_path.indexOf('*') >= 0) {
+            add_req.isStar = true;
+        }
+
+        if (add_req.isStar 
+            && add_req.isArgs
+        ) {
+            var errinfo = `: * can not in two places at once ->  ${api_path}`;
+            throw new Error(errinfo);
+        }
+
+        add_req.routeArr = api_path.split('/').filter(p => p.length > 0);
 
         switch (method) {
             case 'GET':
@@ -257,22 +275,6 @@ module.exports = function () {
             default:
                 return ;
         }
-        if (api_path.indexOf(':') >= 0) {
-            this.ApiTable[method][api_path].isArgs = true;
-        }
-        if (api_path.indexOf('*') >= 0) {
-            this.ApiTable[method][api_path].isStar = true;
-        }
-
-        if(this.ApiTable[method][api_path].isStar 
-            && this.ApiTable[method][api_path].isArgs
-        ) {
-            var errinfo = `: * can not in two places at once ->  ${api_path}`;
-            throw new Error(errinfo);
-        }
-
-        this.ApiTable[method][api_path].routeArr = api_path.split('/').filter(p => p.length > 0);
-
     };
 
     /*
@@ -367,7 +369,7 @@ module.exports = function () {
             如果发现了路径，但是路径和带参数的路径一致。
             这需要作为参数处理，此时重置为null。
         */
-        if (route_key && route_key.indexOf(':') >= 0) {
+        if (route_key && route_key.indexOf('/:') >= 0) {
             route_key = null;
         }
         
@@ -839,21 +841,25 @@ module.exports = function () {
 
         serv.on('stream', the.reqHandler);
 
-        serv.on('session', (sess) => {
+        var onSession = (sess) => {
+            var closeSession = (err) => {
+                sess.close();
+            };
             the.rundata.cur_conn += 1;
             sess.on('close', () => {
                 the.rundata.cur_conn -= 1;
             });
-            sess.on('error', (err) => {
-                sess.close();
-            });
-            sess.on('frameError', (err) => {
-                sess.close();
-            });
-            if (the.limit.max_conn > 0 && the.rundata.cur_conn > the.limit.max_conn) {
+            sess.on('error', closeSession);
+            sess.on('frameError', closeSession);
+
+            if (the.limit.max_conn > 0 
+                && the.rundata.cur_conn > the.limit.max_conn
+            ) {
                 sess.close();
             }
-        });
+        };
+
+        serv.on('session', onSession);
 
         serv.on('sessionError', (err, sess) => {
             //console.log(sess);
@@ -865,9 +871,19 @@ module.exports = function () {
             //console.log(err, tls);
         });
 
-        serv.setTimeout(25000); //设置25秒超时
+        serv.setTimeout(the.config.timeout);
 
         for(let k in the.eventTable) {
+            if (typeof the.eventTable[k] !== 'function') {
+                continue;
+            }
+            if (k === 'session') {
+                serv.on(evt, (sess) => {
+                    onSession(sess);
+                    the.eventTable[evt]
+                });
+                continue;
+            }
             serv.on(evt, the.eventTable[evt]);
         }
 
@@ -922,7 +938,7 @@ module.exports = function () {
                     则把输出流重定向到文件。
                     但是在子进程处理请求仍然可以输出到终端。
                 */
-                /* if (the.config.log_type == 'file') {
+                if (the.config.log_type == 'file') {
                     if(typeof the.config.log_file === 'string'
                         && the.config.log_file.length > 0
                     ) {
@@ -941,7 +957,7 @@ module.exports = function () {
                           );
                         process.stderr.write = err_log.write.bind(err_log);
                     }
-                } */
+                }
 
                 /*
                     检测子进程数量，如果有子进程退出则fork出差值的子进程，

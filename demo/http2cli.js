@@ -1,6 +1,14 @@
 const h2cli = require('../httpclient/awyhttp2');
 
-var h = h2cli.init('https://localhost:2021/api/x');
+var h = h2cli.init('https://localhost:5678/download');
+
+h.download({
+    method : 'GET',
+    dir : process.env.HOME+'/downloads/'
+});
+
+/* 
+var h = h2cli.init('https://localhost:2022/');
 
 h.get()
 .then((data) => {
@@ -17,14 +25,14 @@ h.post({
 });
 
 h.upload({
-    path :'/upload',
+    path :'/upf',
     data : {
         files : {
             "image" : [
                 '/home/wy/tmp/images/流星划过星系.jpg'
             ],
             "file" : [
-                '/home/wy/c/a.c'
+                '/home/wy/videos/毒液.mp4'
             ],
 
             "video" : [
@@ -47,34 +55,4 @@ h.upload({
     console.log(data);
     h.close();
 });
-
-
-/* 
-var filesData = h2cli.preLoadFiles({
-    'image' : [
-        '/home/wy/tmp/images/流星划过星系.jpg',
-        '/home/wy/tmp/images/kaola.jpg',
-        '/home/wy/tmp/linux-shot/mocp-4.png'
-    ],
-
-    'source-code' : [
-        '/home/wy/c/a.c',
-        '/home/wy/node/t.js'
-    ]
-});
-
-for(var i=0; i<filesData.length; i++) {
-    console.log(filesData[i]['content-type'], 
-        filesData[i]['filename'],
-        filesData[i]['upload_name'],
-        filesData[i]['data'].length
-    );
-}
-
-var body_data = h2cli.makeUploadData({"files":filesData});
-
-console.log(body_data['content-type'], 
-    body_data['body-data'].length, 
-    body_data['body-data'].substring(0,150)
-);
  */

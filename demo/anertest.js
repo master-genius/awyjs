@@ -1,4 +1,4 @@
-const awxm = require('../awxm.js');
+const awxm = require('../aner.js');
 
 var ant = new awxm();
 
@@ -13,6 +13,7 @@ ant.config.body_max_size = 600000000;
 ant.config.log_type = 'stdio';
 ant.config.auto_options = true;
 ant.config.cors = '*';
+ant.config.ignore_slash = false;
 
 var api = group('/api');
 
@@ -21,6 +22,10 @@ api.add(async (rr, next) => {
     rr.res.write('api group\n');
     //rr.stream.write('api group\n');
     await next(rr);
+});
+
+api.get('/', async rr => {
+    rr.res.write('api');
 });
 
 api.get('/x', async rr => {
@@ -96,5 +101,8 @@ router.map(['GET','POST'], '/rs/:id', async rr => {
 router.get('/ctx-test', async rr => {
     rr.res.data = 'ok';
 });
+
+console.log(ant.ApiTable);
+console.log(ant.api_group_table);
 
 var h = ant.ants('localhost', 2021, 2);
